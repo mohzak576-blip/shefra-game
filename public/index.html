@@ -149,7 +149,8 @@
             <h2>شيفرة</h2>
             <div style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 20px;">أدخل اسمك، رمز الغرفة، وحدد فريقك ودورك</div>
 
-            <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: 1234)" value="101">
+            <!-- تم جعل حقل رمز الغرفة فارغاً -->
+            <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: 1234)" value="">
             <input type="text" id="player-name-input" class="input-cyber" placeholder="اسمك الكريم..." autofocus>
 
             <div class="team-select-group">
@@ -220,7 +221,7 @@
 
     <script>
         const socket = io();
-        let roomId = '101';
+        let roomId = '';
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
 
@@ -252,7 +253,6 @@
 
         function submitClue() {
             if (!currentGameState) return;
-            // إذا لم يكن دور فريقه، يتم تجاهل الضغطة بصمت بدون أي تنبيه
             if (playerData.team !== currentGameState.currentTurn) return;
 
             const word = document.getElementById('leader-clue-word').value.trim();
@@ -265,7 +265,6 @@
 
         function endTurn() {
             if (!currentGameState) return;
-            // إذا لم يكن دور فريقه، يتم تجاهل الضغطة بصمت
             if (playerData.team !== currentGameState.currentTurn) return;
 
             socket.emit('endTurn', { roomId });
@@ -274,7 +273,6 @@
         function revealCard(index) {
             if (!currentGameState) return;
 
-            // إذا كان قائد فريق أو إذا لم يكن دور فريقه، يتم تجاهل الضغطة بصمت تماماً دون إزعاج
             if (playerData.isLeader) return;
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
             if (playerData.team !== currentGameState.currentTurn) return;
@@ -334,4 +332,3 @@
     </script>
 </body>
 </html>
-
