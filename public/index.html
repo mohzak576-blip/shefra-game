@@ -220,6 +220,7 @@
         const socket = io();
         let roomId = '101';
         let playerData = { name: '', team: 'blue', isLeader: false };
+        let currentGameState = null; // الاحتفاظ بحالة اللعبة الحالية
 
         function selectTeam(team) {
             playerData.team = team;
@@ -248,6 +249,15 @@
         }
 
         function submitClue() {
+            if (!currentGameState) return;
+
+            // التأكد أن القائد ينتمي للفريق صاحب الدور الحالي
+            if (playerData.team !== currentGameState.currentTurn) {
+                const turnName = currentGameState.currentTurn === 'blue' ? 'الأزرق' : 'الأحمر';
+                alert(`عذراً! دور الفريق ${turnName} حالياً.`);
+                return;
+            }
+
             const word = document.getElementById('leader-clue-word').value.trim();
             const count = document.getElementById('leader-clue-count').value;
             if (!word) { alert('اكتب كلمة التلميح أولاً!'); return; }
@@ -257,14 +267,45 @@
         }
 
         function endTurn() {
+            if (!currentGameState) return;
+
+            // التأكد أن اللاعب ينتمي للفريق صاحب الدور الحالي
+            if (playerData.team !== currentGameState.currentTurn) {
+                const turnName = currentGameState.currentTurn === 'blue' ? 'الأزرق' : 'الأحمر';
+                alert(`عذراً! دور الفريق ${turnName} حالياً.`);
+                return;
+            }
+
             socket.emit('endTurn', { roomId });
         }
 
         function revealCard(index) {
+            if (!currentGameState) return;
+
+            // 1. منع القائد من الضغط على الكروت
+            if (playerData.isLeader) {
+                alert("أنت قائد الفريق! لا يمكنك اختيار البطاقات مباشرة.");
+                return;
+            }
+
+            // 2. منع الضغط إذا كانت البطاقة مكشوفة بالفعل
+            if (currentGameState.cards[index] && currentGameState.cards[index].revealed) {
+                return;
+            }
+
+            // 3. منع اللاعب من الاختيار إذا لم يكن دور فريقه
+            if (playerData.team !== currentGameState.currentTurn) {
+                const turnName = currentGameState.currentTurn === 'blue' ? 'الأزرق' : 'الأحمر';
+                alert(`عذراً! دور الفريق ${turnName} حالياً.`);
+                return;
+            }
+
             socket.emit('revealCard', { roomId, index });
         }
 
         socket.on('updateGameState', (gameState) => {
+            currentGameState = gameState; // حفظ حالة اللعبة لاستخدامها في التقييدات
+
             document.getElementById('score-blue').innerText = `${gameState.scoreBlue} / 16`;
             document.getElementById('score-red').innerText = `${gameState.scoreRed} / 15`;
             document.getElementById('clue-status-text').innerText = gameState.clue;
