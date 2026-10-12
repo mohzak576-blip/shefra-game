@@ -95,40 +95,8 @@
             border-radius: 10px; color: #000; font-size: 1.15rem; font-weight: 900; cursor: pointer;
             box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
             transition: transform 0.2s, box-shadow 0.2s;
-            margin-bottom: 10px;
         }
         .btn-launch:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
-
-        .btn-create-room {
-            width: 100%; padding: 12px; background: rgba(255, 204, 0, 0.15); border: 2px solid var(--accent-gold);
-            border-radius: 10px; color: var(--accent-gold); font-size: 1.05rem; font-weight: bold; cursor: pointer;
-            transition: all 0.2s; margin-bottom: 10px;
-        }
-        .btn-create-room:hover { background: var(--accent-gold); color: #000; box-shadow: 0 0 20px rgba(255, 204, 0, 0.5); }
-
-        .created-room-box {
-            display: none;
-            background: rgba(4, 6, 12, 0.9);
-            border: 2px dashed var(--accent-gold);
-            border-radius: 14px;
-            padding: 15px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .created-room-box .code-text {
-            font-size: 2.2rem;
-            font-weight: 900;
-            color: var(--accent-cyan);
-            letter-spacing: 4px;
-            margin: 8px 0;
-        }
-
-        .btn-copy-link {
-            width: 100%; padding: 10px; background: var(--accent-gold); border: none;
-            border-radius: 8px; color: #000; font-weight: 900; cursor: pointer; font-size: 0.95rem;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.4); margin-top: 5px;
-        }
 
         .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
         .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
@@ -181,14 +149,8 @@
             <h2>شيفرة</h2>
             <div style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 20px;">أدخل اسمك، رمز الغرفة، وحدد فريقك ودورك</div>
 
-            <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: 1234)" value="">
+            <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: 1234)" value="101">
             <input type="text" id="player-name-input" class="input-cyber" placeholder="اسمك الكريم..." autofocus>
-
-            <div class="created-room-box" id="created-room-box">
-                <div style="color: var(--accent-gold); font-size: 0.85rem; font-weight: bold;">🎉 تم إنشاء الغرفة بنجاح!</div>
-                <div class="code-text" id="display-room-code">----</div>
-                <button class="btn-copy-link" onclick="copyRoomLink()">📋 نسخ رابط الغرفة للأصدقاء</button>
-            </div>
 
             <div class="team-select-group">
                 <button class="btn-team-cyber blue active" id="btn-select-blue" onclick="selectTeam('blue')">🔵 الفريق الأزرق</button>
@@ -201,7 +163,6 @@
             </div>
 
             <button class="btn-launch" onclick="enterGame()">الانضمام إلى الغرفة 🚀</button>
-            <button class="btn-create-room" onclick="generateNewRoom()">إنشاء غرفة جديدة 🎮</button>
         </div>
     </div>
 
@@ -258,53 +219,15 @@
     </div>
 
     <script>
-        let socket;
-        try {
-            socket = io();
-        } catch(e) {
-            console.error("Socket.io connection error:", e);
-        }
-
-        let roomId = '';
+        const socket = io();
+        let roomId = '101';
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
-
-        // قراءة رمز الغرفة من رابط URL إن وجد بشكل آمن
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomParam = urlParams.get('room');
-            if (roomParam) {
-                const roomInput = document.getElementById('room-id-input');
-                if(roomInput) roomInput.value = roomParam;
-                roomId = roomParam;
-            }
-        } catch(err) {
-            console.error(err);
-        }
 
         function selectTeam(team) {
             playerData.team = team;
             document.getElementById('btn-select-blue').classList.toggle('active', team === 'blue');
             document.getElementById('btn-select-red').classList.toggle('active', team === 'red');
-        }
-
-        function generateNewRoom() {
-            const newCode = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('room-id-input').value = newCode;
-            document.getElementById('display-room-code').innerText = newCode;
-            document.getElementById('created-room-box').style.display = 'block';
-            roomId = newCode;
-        }
-
-        function copyRoomLink() {
-            const code = document.getElementById('room-id-input').value.trim();
-            if (!code) return;
-            
-            const link = window.location.origin + window.location.pathname + '?room=' + code;
-            
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(link).catch(() => {});
-            }
         }
 
         function enterGame() {
@@ -324,13 +247,12 @@
                 document.getElementById('player-controls').style.display = 'none';
             }
 
-            if (socket) {
-                socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader: playerData.isLeader });
-            }
+            socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader: playerData.isLeader });
         }
 
         function submitClue() {
-            if (!currentGameState || !socket) return;
+            if (!currentGameState) return;
+            // إذا لم يكن دور فريقه، يتم تجاهل الضغطة بصمت بدون أي تنبيه
             if (playerData.team !== currentGameState.currentTurn) return;
 
             const word = document.getElementById('leader-clue-word').value.trim();
@@ -342,15 +264,17 @@
         }
 
         function endTurn() {
-            if (!currentGameState || !socket) return;
+            if (!currentGameState) return;
+            // إذا لم يكن دور فريقه، يتم تجاهل الضغطة بصمت
             if (playerData.team !== currentGameState.currentTurn) return;
 
             socket.emit('endTurn', { roomId });
         }
 
         function revealCard(index) {
-            if (!currentGameState || !socket) return;
+            if (!currentGameState) return;
 
+            // إذا كان قائد فريق أو إذا لم يكن دور فريقه، يتم تجاهل الضغطة بصمت تماماً دون إزعاج
             if (playerData.isLeader) return;
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
             if (playerData.team !== currentGameState.currentTurn) return;
@@ -358,57 +282,56 @@
             socket.emit('revealCard', { roomId, index });
         }
 
-        if (socket) {
-            socket.on('updateGameState', (gameState) => {
-                currentGameState = gameState;
+        socket.on('updateGameState', (gameState) => {
+            currentGameState = gameState;
 
-                document.getElementById('score-blue').innerText = `${gameState.scoreBlue} / 16`;
-                document.getElementById('score-red').innerText = `${gameState.scoreRed} / 15`;
-                document.getElementById('clue-status-text').innerText = gameState.clue;
+            document.getElementById('score-blue').innerText = `${gameState.scoreBlue} / 16`;
+            document.getElementById('score-red').innerText = `${gameState.scoreRed} / 15`;
+            document.getElementById('clue-status-text').innerText = gameState.clue;
 
-                const turnInd = document.getElementById('turn-indicator');
-                if (gameState.currentTurn === 'blue') {
-                    turnInd.innerText = "🔵 الفريق الأزرق"; turnInd.style.color = "var(--team-blue)";
-                    document.getElementById('box-blue').classList.add('active-turn'); document.getElementById('box-red').classList.remove('active-turn');
-                } else {
-                    turnInd.innerText = "🔴 الفريق الأحمر"; turnInd.style.color = "var(--team-red)";
-                    document.getElementById('box-red').classList.add('active-turn'); document.getElementById('box-blue').classList.remove('active-turn');
+            const turnInd = document.getElementById('turn-indicator');
+            if (gameState.currentTurn === 'blue') {
+                turnInd.innerText = "🔵 الفريق الأزرق"; turnInd.style.color = "var(--team-blue)";
+                document.getElementById('box-blue').classList.add('active-turn'); document.getElementById('box-red').classList.remove('active-turn');
+            } else {
+                turnInd.innerText = "🔴 الفريق الأحمر"; turnInd.style.color = "var(--team-red)";
+                document.getElementById('box-red').classList.add('active-turn'); document.getElementById('box-blue').classList.remove('active-turn');
+            }
+
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            gameState.cards.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerText = item.word;
+
+                if (playerData.isLeader && !item.revealed) {
+                    if (item.type === 'black') {
+                        card.classList.add('leader-view-black');
+                        card.innerText = item.word + " 💀";
+                    } else {
+                        card.style.borderBottom = `4px solid var(--team-${item.type === 'neutral' ? 'neutral' : item.type})`;
+                    }
                 }
 
-                const grid = document.getElementById('grid');
-                grid.innerHTML = '';
+                if (item.revealed) {
+                    card.classList.add(`revealed-${item.type}`);
+                    if (item.type === 'black') card.innerText = "💀 خـسـارة";
+                }
 
-                gameState.cards.forEach((item, idx) => {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerText = item.word;
-
-                    if (playerData.isLeader && !item.revealed) {
-                        if (item.type === 'black') {
-                            card.classList.add('leader-view-black');
-                            card.innerText = item.word + " 💀";
-                        } else {
-                            card.style.borderBottom = `4px solid var(--team-${item.type === 'neutral' ? 'neutral' : item.type})`;
-                        }
-                    }
-
-                    if (item.revealed) {
-                        card.classList.add(`revealed-${item.type}`);
-                        if (item.type === 'black') card.innerText = "💀 خـسـارة";
-                    }
-
-                    card.onclick = () => revealCard(idx);
-                    grid.appendChild(card);
-                });
+                card.onclick = () => revealCard(idx);
+                grid.appendChild(card);
             });
+        });
 
-            socket.on('timerUpdate', ({ timer }) => {
-                const minutes = Math.floor(timer / 60);
-                const seconds = timer % 60;
-                document.getElementById('timer-display').innerText = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-                document.getElementById('timer-progress-fill').style.width = `${(timer / 180) * 100}%`;
-            });
-        }
+        socket.on('timerUpdate', ({ timer }) => {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            document.getElementById('timer-display').innerText = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            document.getElementById('timer-progress-fill').style.width = `${(timer / 180) * 100}%`;
+        });
     </script>
 </body>
 </html>
+
