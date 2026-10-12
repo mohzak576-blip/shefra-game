@@ -1,0 +1,121 @@
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+const rooms = {};
+
+const masterWordPool = [
+    "قمر", "سيارة", "ساعة", "شجرة", "مفتاح", "بحر", "طائرة", "حاسوب",
+    "هاتف", "قهوة", "كتاب", "نظارة", "جبل", "مطر", "قطة", "صحراء",
+    "قلعة", "مصباح", "بوصلة", "جاسوس", "لوحة", "عاصفة", "بركان", "صقر",
+    "تاج", "قناع", "صاروخ", "سفينة", "جزيرة", "مرآة", "صندوق", "خريطة",
+    "الماس", "جسر", "برج", "نجم", "ذهب", "شلال", "كهف", "قنبلة",
+    "دراجة", "محيط", "شاطئ", "قطار", "محرك", "زمرد", "سيف", "درع",
+    "كوكب", "مجرة", "مجهر", "ليزر", "شاشة", "رادار", "غواصة", "مروحية",
+    "زلزال", "مذنب", "منارة", "مختبر", "روبوت", "شبكة", "قمر صناعي", "سفينة فضائية"
+];
+
+function generateGrid() {
+    const selectedWords = [...masterWordPool].sort(() => Math.random() - 0.5).slice(0, 40);
+    let types = [
+        ...Array(16).fill('blue'),
+        ...Array(15).fill('red'),
+        ...Array(8).fill('neutral'),
+        'black'
+    ].sort(() => Math.random() - 0.5);
+
+    return selectedWords.map((word, index) => ({
+        word: word,
+        type: types[index],
+        revealed: false
+    }));
+}
+
+io.on('connection', (socket) => {
+    socket.on('joinRoom', ({ roomId, playerName, team, isLeader }) => {
+        socket.join(roomId);
+
+        if (!rooms[roomId]) {
+            rooms[roomId] = {
+                cards: generateGrid(),
+                scoreBlue: 0,
+                scoreRed: 0,
+                currentTurn: 'blue',
+                clue: 'في انتظار التلميح من القائد...',
+                timer: 180,
+                timerInterval: null,
+                isTimerRunning: false,
+                players: []
+            };
+        }
+
+        rooms[roomId].players.push({ id: socket.id, playerName, team, isLeader });
+        io.to(roomId).emit('updateGameState', rooms[roomId]);
+    });
+
+    socket.on('submitClue', ({ roomId, word, count }) => {
+        const room = rooms[roomId];
+        if (!room) return;
+
+        room.clue = `"${word}" (مطلوب: ${count})`;
+        room.timer = 180;
+        room.isTimerRunning = true;
+
+        clearInterval(room.timerInterval);
+        room.timerInterval = setInterval(() => {
+            if (room.timer > 0 && room.isTimerRunning) {
+                room.timer--;
+                io.to(roomId).emit('timerUpdate', { timer: room.timer });
+            } else if (room.timer === 0) {
+                clearInterval(room.timerInterval);
+                room.isTimerRunning = false;
+                room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
+                room.clue = "في انتظار التلميح من القائد...";
+                io.to(roomId).emit('updateGameState', room);
+            }
+        }, 1000);
+
+        io.to(roomId).emit('updateGameState', room);
+    });
+
+    socket.on('revealCard', ({ roomId, index }) => {
+        const room = rooms[roomId];
+        if (!room || room.cards[index].revealed) return;
+
+        room.cards[index].revealed = true;
+        const type = room.cards[index].type;
+
+        if (type === 'blue') room.scoreBlue++;
+        if (type === 'red') room.scoreRed++;
+
+        if (type === 'black' || type === 'neutral' || type !== room.currentTurn) {
+            clearInterval(room.timerInterval);
+            room.isTimerRunning = false;
+            room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
+            room.clue = "في انتظار التلميح من القائد...";
+        }
+
+        io.to(roomId).emit('updateGameState', room);
+    });
+
+    socket.on('endTurn', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room) return;
+
+        clearInterval(room.timerInterval);
+        room.isTimerRunning = false;
+        room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
+        room.clue = "في انتظار التلميح من القائد...";
+        io.to(roomId).emit('updateGameState', room);
+    });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => console.log(`سيرفر شيفرة يعمل الآن على المنفذ ${PORT}`));
