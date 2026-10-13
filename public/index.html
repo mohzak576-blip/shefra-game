@@ -118,14 +118,12 @@
         }
         .btn-launch:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
 
-        /* الشاشة الرئيسية للنتائج والفرق */
         .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
         .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
         .team-box.team-blue { border-color: rgba(0, 210, 255, 0.4); }
         .team-box.team-red { border-color: rgba(255, 42, 109, 0.4); }
         .team-box.active-turn { box-shadow: 0 0 30px currentColor; }
 
-        /* تنسيقات عرض قادة وأعضاء الفرق */
         .team-members-container {
             margin-top: 10px;
             padding-top: 10px;
@@ -252,7 +250,6 @@
     <div class="main-container">
 
         <div class="scoreboard">
-            <!-- صندوق الفريق الأزرق والقائد وأعضاء الفريق -->
             <div class="team-box team-blue" id="box-blue">
                 <div style="font-weight: bold; color: var(--team-blue);">الفريق الأزرق</div>
                 <div style="font-size: 1.8rem; font-weight: 900;" id="score-blue">0 / 16</div>
@@ -267,7 +264,6 @@
                 </div>
             </div>
 
-            <!-- صندوق الفريق الأحمر والقائد وأعضاء الفريق -->
             <div class="team-box team-red" id="box-red">
                 <div style="font-weight: bold; color: var(--team-red);">الفريق الأحمر</div>
                 <div style="font-size: 1.8rem; font-weight: 900;" id="score-red">0 / 15</div>
@@ -368,6 +364,7 @@
             playerData.team = team;
             playerData.isLeader = isLeader;
 
+            // حفظ البيانات الصحيحة في sessionStorage
             sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team, isLeader }));
 
             document.getElementById('login-overlay').style.display = 'none';
@@ -403,7 +400,11 @@
             
             if (savedSession) {
                 const data = JSON.parse(savedSession);
-                executeJoin(data.name, data.room, data.team, data.isLeader);
+                if (data && data.name && data.room) {
+                    executeJoin(data.name, data.room, data.team, data.isLeader);
+                } else {
+                    sessionStorage.removeItem('shefra_session');
+                }
             } else {
                 const urlParams = new URLSearchParams(window.location.search);
                 const roomParam = urlParams.get('room');
@@ -442,7 +443,6 @@
             socket.emit('revealCard', { roomId, index });
         }
 
-        // تحديث القادة وأعضاء الفرق عند تلقي قائمة اللاعبين
         function updatePlayersList(players) {
             const bluePlayersList = document.getElementById('blue-players-list');
             const redPlayersList = document.getElementById('red-players-list');
