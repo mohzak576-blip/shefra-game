@@ -89,7 +89,6 @@
         }
         .btn-create-room:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 15px rgba(0,240,255,0.5); }
 
-        /* قائمة إنشاء الغرفة الصغيرة */
         .room-created-box {
             background: rgba(0, 240, 255, 0.05); border: 1px dashed var(--accent-cyan); border-radius: 10px;
             padding: 12px; margin-bottom: 12px; display: none; flex-direction: column; gap: 8px; text-align: right;
@@ -170,13 +169,11 @@
             <h2>شيفرة</h2>
             <div style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 20px;">أدخل اسمك، رمز الغرفة، وحدد فريقك ودورك</div>
 
-            <!-- صف إدخال رمز الغرفة مع زر إنشاء غرفة -->
             <div class="room-row">
                 <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: A3x9)" value="">
                 <button class="btn-create-room" onclick="generateNewRoom()">إنشاء غرفة 🎲</button>
             </div>
 
-            <!-- القائمة الصغيرة لعرض تفاصيل الغرفة المُنشأة وزر النسخ -->
             <div class="room-created-box" id="room-created-box">
                 <div class="info-row">
                     <span>تم إنشاء الغرفة بنجاح!</span>
@@ -259,7 +256,6 @@
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
 
-        // دالة توليد معرف عشوائي مكون من أرقام وأحرف (مثال: A7k2M)
         function generateRoomCode() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
@@ -269,7 +265,6 @@
             return result;
         }
 
-        // عند الضغط على زر إنشاء غرفة جديدة
         function generateNewRoom() {
             const newCode = generateRoomCode();
             document.getElementById('room-id-input').value = newCode;
@@ -277,7 +272,6 @@
             document.getElementById('room-created-box').style.display = 'flex';
         }
 
-        // دالة لنسخ رابط الغرفة ليتم مشاركته مع الأصدقاء
         function copyRoomLink() {
             const roomCode = document.getElementById('room-id-input').value;
             const fullLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
@@ -289,19 +283,33 @@
             });
         }
 
-        // فحص ما إذا كان الرابط يحتوي على رمز غرفة جاهز تلقائياً عند فتح الصفحة
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const roomParam = urlParams.get('room');
-            if (roomParam) {
-                document.getElementById('room-id-input').value = roomParam;
-            }
-        });
-
         function selectTeam(team) {
             playerData.team = team;
             document.getElementById('btn-select-blue').classList.toggle('active', team === 'blue');
             document.getElementById('btn-select-red').classList.toggle('active', team === 'red');
+        }
+
+        // دالة تنفذ عملية الانضمام الفعلي وتخزين الجلسة
+        function executeJoin(name, room, team, isLeader) {
+            playerData.name = name;
+            roomId = room;
+            playerData.team = team;
+            playerData.isLeader = isLeader;
+
+            // حفظ بيانات الجلسة لحمايتها عند عمل Refresh
+            sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team, isLeader }));
+
+            document.getElementById('login-overlay').style.display = 'none';
+
+            if (playerData.isLeader) {
+                document.getElementById('leader-panel').style.display = 'flex';
+                document.getElementById('player-controls').style.display = 'none';
+            } else {
+                document.getElementById('leader-panel').style.display = 'none';
+                document.getElementById('player-controls').style.display = 'block';
+            }
+
+            socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader: playerData.isLeader });
         }
 
         function enterGame() {
@@ -310,19 +318,27 @@
 
             if (!name || !room) { alert('ادخل اسمك ورمز الغرفة أولاً!'); return; }
 
-            playerData.name = name;
-            roomId = room;
-            playerData.isLeader = document.getElementById('is-leader-check').checked;
-
-            document.getElementById('login-overlay').style.display = 'none';
-
-            if (playerData.isLeader) {
-                document.getElementById('leader-panel').style.display = 'flex';
-                document.getElementById('player-controls').style.display = 'none';
-            }
-
-            socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader: playerData.isLeader });
+            const isLeader = document.getElementById('is-leader-check').checked;
+            executeJoin(name, room, playerData.team, isLeader);
         }
+
+        // عند تحميل الصفحة: الفحص الآلي للجلسات أو الروابط المباشرة
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedSession = sessionStorage.getItem('shefra_session');
+            
+            if (savedSession) {
+                // إذا وجد جلسة مخزنة مسبقاً يكمل تلقائياً دون إظهار الشاشة الرئيسية
+                const data = JSON.parse(savedSession);
+                executeJoin(data.name, data.room, data.team, data.isLeader);
+            } else {
+                // التأكد من قراءة معلمة الغرفة من الرابط إذا دخل عن طريق رابط دعوة
+                const urlParams = new URLSearchParams(window.location.search);
+                const roomParam = urlParams.get('room');
+                if (roomParam) {
+                    document.getElementById('room-id-input').value = roomParam;
+                }
+            }
+        });
 
         function submitClue() {
             if (!currentGameState) return;
