@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
             );
             if (existingLeader) {
                 socket.emit('leaderSlotTaken', { 
-                    message: `عذراً، مقعد القائد لـ ${team === 'blue' ? 'الفريق الأزرق' : 'الفريق الأحمر'} محجوز بالفعل! يجب أن ينتظر القائد الحالي حتى يغادر.` 
+                    message: `عذراً، مقعد القائد لـ ${team === 'blue' ? 'الفريق الأزرق' : 'الفريق الأحمر'} محجوز بالفعل!` 
                 });
                 return;
             }
@@ -82,13 +82,11 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // تصحيح دالة إرسال التلميح لضمان وصوله للجميع
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
         if (!room || room.gameOver) return;
-        const player = room.players[socket.id];
-        if (!player || !player.isLeader || player.team !== room.currentTurn) return;
 
+        // تحديث النص وإعادة الضبط فوراً
         room.clue = `"${word}" (مطلوب: ${count})`;
         room.timer = 180;
         room.isTimerRunning = true;
@@ -108,6 +106,7 @@ io.on('connection', (socket) => {
             }
         }, 1000);
 
+        // إرسال الحالة المحدثة لجميع اللاعبين في الغرفة بدون استثناء
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
