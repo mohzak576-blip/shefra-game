@@ -82,6 +82,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // تصحيح دالة إرسال التلميح لضمان وصوله للجميع
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
         if (!room || room.gameOver) return;
