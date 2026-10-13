@@ -438,6 +438,7 @@
 
     <div class="main-container">
 
+        <!-- عرض لوحة النتائج مع أسماء القادة والأعضاء -->
         <div class="scoreboard">
             <div class="team-box team-blue" id="box-blue">
                 <div style="font-weight: bold; color: var(--team-blue);">الفريق الأزرق</div>
@@ -722,7 +723,6 @@
             socket.emit('revealCard', { roomId, index });
         }
 
-        // الأكداث الأساسية لتحديث حالة اللعبة واختفاء شاشة تسجيل الدخول
         socket.on('roomJoinedSuccess', () => {
             document.getElementById('login-overlay').style.display = 'none';
             sessionStorage.setItem('shefra_session', JSON.stringify(roomId ? { roomId, ...playerData } : playerData));
@@ -735,11 +735,13 @@
             document.getElementById('score-blue').innerText = `${gameState.blueScore} / 16`;
             document.getElementById('score-red').innerText = `${gameState.redScore} / 15`;
 
+            // تحديث أسماء القادة
             const blueLeaderEl = document.getElementById('blue-leader-name');
             const redLeaderEl = document.getElementById('red-leader-name');
             blueLeaderEl.innerText = gameState.blueLeader || 'غير محدد';
             redLeaderEl.innerText = gameState.redLeader || 'غير محدد';
 
+            // تحديث قوائم الأعضاء
             const blueList = document.getElementById('blue-players-list');
             const redList = document.getElementById('red-players-list');
             blueList.innerHTML = '';
