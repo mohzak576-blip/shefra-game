@@ -179,7 +179,7 @@
             font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%;
         }
 
-        /* شاشة الخسارة (دون تغيير) */
+        /* شاشة الخسارة المرعبة (كما طلبت تماماً دون أي تعديل)[cite: 1] */
         .scary-loss-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000; display: none; flex-direction: column;
@@ -207,66 +207,72 @@
         }
         .btn-close-scary:hover { transform: scale(1.05); }
 
-        /* شاشة الفوز الجديدة والمميزة */
-        .scary-win-overlay {
+        /* شاشة الفوز الاحتفالية المختلفة تماماً (اليسار) */
+        .victory-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: radial-gradient(circle at center, rgba(10, 30, 60, 0.98) 0%, rgba(3, 6, 15, 0.99) 100%);
+            background: radial-gradient(circle at center, #0b1930 0%, #030712 100%);
             display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
             text-align: center; padding: 20px; overflow: hidden;
         }
 
-        .win-card-content {
-            background: rgba(15, 23, 42, 0.85);
-            border: 2px solid var(--accent-gold);
-            border-radius: 28px;
-            padding: 40px 35px;
-            max-width: 550px; width: 90%;
-            box-shadow: 0 0 80px rgba(255, 204, 0, 0.35), inset 0 0 30px rgba(255, 204, 0, 0.15);
-            backdrop-filter: blur(15px);
+        .victory-card {
+            background: linear-gradient(145deg, rgba(13, 27, 48, 0.95), rgba(5, 12, 24, 0.98));
+            border: 2px solid var(--accent-cyan);
+            border-radius: 30px;
+            padding: 45px 35px;
+            max-width: 520px; width: 90%;
+            box-shadow: 0 0 70px rgba(0, 240, 255, 0.35), inset 0 0 25px rgba(0, 240, 255, 0.15);
+            animation: victoryPopup 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
-            z-index: 2;
-            animation: winCardPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @keyframes winCardPop {
-            0% { transform: scale(0.6); opacity: 0; }
+        @keyframes victoryPopup {
+            0% { transform: scale(0.5); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .win-illustration {
-            width: 130px; height: 130px;
-            margin: 0 auto 20px auto;
-            background: radial-gradient(circle, rgba(255,204,0,0.2) 0%, transparent 70%);
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; border: 3px solid var(--accent-gold);
-            box-shadow: 0 0 35px var(--accent-gold);
-            animation: trophyGlow 1.2s infinite alternate;
+        .victory-badge {
+            font-size: 5rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.8));
+            animation: badgeFloat 1.5s infinite alternate ease-in-out;
         }
 
-        @keyframes trophyGlow {
-            0% { transform: scale(1); box-shadow: 0 0 25px var(--accent-gold); }
-            100% { transform: scale(1.08); box-shadow: 0 0 50px var(--accent-gold); }
+        @keyframes badgeFloat {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-12px); }
         }
 
-        .win-illustration svg { width: 75px; height: 75px; fill: var(--accent-gold); filter: drop-shadow(0 0 10px rgba(255,204,0,0.8)); }
-
-        .win-title {
-            background: linear-gradient(90deg, #ffcc00, #ffe680, #ffcc00);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-size: 3rem; font-weight: 900; margin-bottom: 12px;
-            text-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+        .victory-title {
+            color: var(--accent-cyan);
+            font-size: 2.8rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
         }
 
-        .win-subtitle { color: #e2e8f0; font-size: 1.25rem; font-weight: 700; margin-bottom: 30px; line-height: 1.5; }
+        .victory-subtitle {
+            color: #cbd5e1;
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
 
-        .btn-close-win {
-            background: linear-gradient(90deg, #ffcc00, #ff9900); color: #000;
-            border: none; padding: 14px 40px; font-size: 1.2rem; font-weight: 900;
-            border-radius: 12px; cursor: pointer; box-shadow: 0 0 30px rgba(255, 204, 0, 0.6);
+        .btn-victory-exit {
+            background: linear-gradient(90deg, #00d2ff, #00f0ff);
+            color: #000;
+            border: none;
+            padding: 14px 35px;
+            font-size: 1.15rem;
+            font-weight: 900;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-close-win:hover { transform: scale(1.06); box-shadow: 0 0 45px rgba(255, 204, 0, 0.9); }
+        .btn-victory-exit:hover { transform: scale(1.05); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
 
         .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
         .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
@@ -385,7 +391,7 @@
 </head>
 <body>
 
-    <!-- شاشة الخسارة (كما هي) -->
+    <!-- شاشة الخسارة (مطابقة تماماً لما طلبت ومرغوبة) -->
     <div class="scary-loss-overlay" id="scary-loss-overlay">
         <div class="scary-skull">💀</div>
         <div class="scary-title" id="scary-title-text">لقد خسر فريقك!</div>
@@ -393,20 +399,13 @@
         <button class="btn-close-scary" onclick="exitGame()">إغلاق وخروج 🚪</button>
     </div>
 
-    <!-- شاشة الفوز الجديدة والمميزة -->
-    <div class="scary-win-overlay" id="scary-win-overlay">
-        <div class="win-card-content">
-            <div class="win-illustration">
-                <!-- أيقونة الكأس الذهبي البراق -->
-                <svg viewBox="0 0 24 24">
-                    <path d="M19,5h-2V3H7v2H5C3.9,5,3,5.9,3,7v1c0,2.55,1.92,4.63,4.39,4.94c0.63,1.5,1.98,2.63,3.61,2.96V19H7v2h10v-2h-4v-3.1
-                    c1.63-0.33,2.98-1.46,3.61-2.96C19.08,12.63,21,10.55,21,8V7C21,5.9,20.1,5,19,5z M5,8V7h2v3.82C5.84,10.4,5,9.3,5,8z M19,8
-                    c0,1.3-0.84,2.4-2,2.82V7h2V8z"/>
-                </svg>
-            </div>
-            <div class="win-title" id="win-title-text">انتصار ساحق! 👑</div>
-            <div class="win-subtitle" id="win-subtitle-text">تهانينا، لقد كشف فريقك جميع الكلمات بنجاح واستطاع حسم المعركة!</div>
-            <button class="btn-close-win" onclick="exitGame()">خروج من اللعبة 🚀</button>
+    <!-- شاشة الفوز الجديدة والمختلفة كلياً (السيبرانية المضيئة) -->
+    <div class="victory-overlay" id="victory-overlay">
+        <div class="victory-card">
+            <div class="victory-badge">🏆</div>
+            <div class="victory-title" id="victory-title-text">انتصار مذهل!</div>
+            <div class="victory-subtitle" id="victory-subtitle-text">أبدعتم في كشف جميع كلمات فريقكم وحسمتم النصر بجدارة! ✨</div>
+            <button class="btn-victory-exit" onclick="exitGame()">خروج من اللعبة 🚀</button>
         </div>
     </div>
 
@@ -566,6 +565,7 @@
             return roomFromUrl || currentRoomId || document.getElementById('room-id-input').value.trim();
         }
 
+        // صوت الخسارة (مرعب وثقيل)
         function playScarySound() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -592,30 +592,29 @@
             }
         }
 
-        /* الصوت الجديد المبهج والمناسب للفوز والنصر (Fanfare Tone) */
+        // صوت الفوز (احتفالي، نقي ومختلف كلياً عن الخسارة)
         function playWinSound() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
                 const ctx = new AudioContext();
 
-                // نغمات احتفالية متصاعدة ونقية (C5, E5, G5, C6)
                 const notes = [
-                    { freq: 523.25, time: 0.0, duration: 0.15 },
-                    { freq: 659.25, time: 0.15, duration: 0.15 },
-                    { freq: 783.99, time: 0.30, duration: 0.20 },
-                    { freq: 1046.50, time: 0.50, duration: 0.60 }
+                    { freq: 440.00, time: 0.0, duration: 0.15 },
+                    { freq: 554.37, time: 0.15, duration: 0.15 },
+                    { freq: 659.25, time: 0.30, duration: 0.15 },
+                    { freq: 880.00, time: 0.45, duration: 0.50 }
                 ];
 
                 notes.forEach(note => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
-                    osc.type = 'triangle';
+                    osc.type = 'sine';
                     osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.time);
 
                     gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
-                    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + note.time + 0.05);
+                    gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + note.time + 0.05);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note.time + note.duration);
 
                     osc.connect(gain);
@@ -832,35 +831,37 @@
             });
         }
 
+        // عند الخسارة بالبطاقة السوداء تظهر شاشة الخسارة فقط
         socket.on('blackCardLoss', ({ losingTeam }) => {
             playScarySound();
             const lossOverlay = document.getElementById('scary-loss-overlay');
             const lossTitle = document.getElementById('scary-title-text');
 
             if (playerData.team === losingTeam) {
-                lossTitle.innerText = "💀 لقد خسر فريقك!";
+                lossTitle.innerText = "لقد خسر فريقك!";
             } else {
-                lossTitle.innerText = "🎉 فاز فريقك! الفريق المنافس فتح البطاقة السوداء!";
+                lossTitle.innerText = "خسر الفريق المنافس!";
             }
 
             lossOverlay.style.display = 'flex';
         });
 
+        // عند الفوز الطبيعي بكشف جميع الكلمات تظهر شاشة الفوز السيبرانية والمختلفة تماماً
         socket.on('gameWin', ({ winningTeam }) => {
             playWinSound();
-            const winOverlay = document.getElementById('scary-win-overlay');
-            const winTitle = document.getElementById('win-title-text');
-            const winSubtitle = document.getElementById('win-subtitle-text');
+            const victoryOverlay = document.getElementById('victory-overlay');
+            const victoryTitle = document.getElementById('victory-title-text');
+            const victorySubtitle = document.getElementById('victory-subtitle-text');
 
             if (playerData.team === winningTeam) {
-                winTitle.innerText = "انتصار ساحق! 👑";
-                winSubtitle.innerText = `مبارك للفريق (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'})! لقد أظهرتم ذكاءً ورائعاً وتم كشف جميع الكلمات! ✨`;
+                victoryTitle.innerText = "انتصار مذهل!";
+                victorySubtitle.innerText = `مبارك لفريقنا (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'})! لقد أظهرتم ذكاءً خارقاً وتم كشف كافة الكلمات بنجاح! ✨`;
             } else {
-                winTitle.innerText = "انتهت المعركة 🏁";
-                winSubtitle.innerText = `تمكن الفريق المنافس (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) من كشف كافة كلماته أولاً وحسم اللقب!`;
+                victoryTitle.innerText = "انتهت المعركة!";
+                victorySubtitle.innerText = `تمكن الفريق المنافس (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) من الفوز وكشف جميع كلماته أولاً. هاردلك!`;
             }
 
-            winOverlay.style.display = 'flex';
+            victoryOverlay.style.display = 'flex';
         });
 
         socket.on('updateGameState', (gameState) => {
