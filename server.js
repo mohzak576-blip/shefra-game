@@ -34,7 +34,8 @@ function generateGrid() {
     return selectedWords.map((word, index) => ({
         word: word,
         type: types[index],
-        revealed: false
+        revealed: false,
+        selectedBy: null // لتخزين اسم الشخص الذي اختار البطاقة مؤقتاً للنقاش
     }));
 }
 
@@ -78,12 +79,7 @@ io.on('connection', (socket) => {
             isLeader: isLeader
         };
 
-        const roomData = {
-            ...room,
-            players: Object.values(room.players)
-        };
-
-        io.to(roomId).emit('updateGameState', roomData);
+        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
     socket.on('submitClue', ({ roomId, word, count }) => {
@@ -104,6 +100,7 @@ io.on('connection', (socket) => {
                 room.isTimerRunning = false;
                 room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
                 room.clue = "في انتظار التلميح من القائد...";
+                room.cards.forEach(c => c.selectedBy = null);
                 io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
             }
         }, 1000);
@@ -111,32 +108,71 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    socket.on('revealCard', ({ roomId, index }) => {
+    // تبديل أو تسجيل اختيار العضو للبطاقة أثناء النقاش
+    socket.on('toggleSelectCard', ({ roomId, index }) => {
         const room = rooms[roomId];
-        if (!room || room.gameOver || room.cards[index].revealed) return;
+        const player = room.players[socket.id];
+        if (!room || room.gameOver || player.isLeader || room.cards[index].revealed) return;
+        if (player.team !== room.currentTurn) return;
 
-        room.cards[index].revealed = true;
-        const type = room.cards[index].type;
+        // إذا كان مختاراً مسبقاً من نفس الشخص, قم بإلغائه، وإلا قم بتعيينه
+        if (room.cards[index].selectedBy === player.name) {
+            room.cards[index].selectedBy = null;
+        } else {
+            room.cards[index].selectedBy = player.name;
+        }
 
-        if (type === 'blue') room.scoreBlue++;
-        if (type === 'red') room.scoreRed++;
+        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+    });
 
+    // تأكيد الاختيارات المحددة من قبل الفريق
+    socket.on('confirmSelection', ({ roomId }) => {
+        const room = rooms[roomId];
+        const player = room.players[socket.id];
+        if (!room || room.gameOver || player.isLeader || player.team !== room.currentTurn) return;
+
+        const selectedIndices = room.cards
+            .map((card, idx) => ({ card, idx }))
+            .filter(item => item.card.selectedBy !== null && !item.card.revealed)
+            .map(item => item.idx);
+
+        if (selectedIndices.length === 0) return;
+
+        let hitWrong = false;
+        let hitBlack = false;
+
+        selectedIndices.forEach(idx => {
+            const card = room.cards[idx];
+            card.revealed = true;
+            card.selectedBy = null;
+
+            if (card.type === room.currentTurn) {
+                if (room.currentTurn === 'blue') room.scoreBlue++;
+                if (room.currentTurn === 'red') room.scoreRed++;
+            } else if (card.type === 'black') {
+                hitBlack = true;
+            } else {
+                hitWrong = true;
+            }
+        });
+
+        // تنظيف أي اختيارات متبقية لم تكشف
+        room.cards.forEach(c => c.selectedBy = null);
+
+        // التحقق من الفوز أو الخسارة
         if (room.scoreBlue >= 16) {
             room.gameOver = true;
             clearInterval(room.timerInterval);
-            room.isTimerRunning = false;
             io.to(roomId).emit('gameWin', { winningTeam: 'blue' });
         } else if (room.scoreRed >= 15) {
             room.gameOver = true;
             clearInterval(room.timerInterval);
-            room.isTimerRunning = false;
             io.to(roomId).emit('gameWin', { winningTeam: 'red' });
-        } else if (type === 'black') {
+        } else if (hitBlack) {
             room.gameOver = true;
             clearInterval(room.timerInterval);
-            room.isTimerRunning = false;
             io.to(roomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
-        } else if (type === 'neutral' || type !== room.currentTurn) {
+        } else if (hitWrong) {
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
             room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
@@ -154,6 +190,7 @@ io.on('connection', (socket) => {
         room.isTimerRunning = false;
         room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
         room.clue = "في انتظار التلميح من القائد...";
+        room.cards.forEach(c => c.selectedBy = null);
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
