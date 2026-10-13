@@ -57,7 +57,7 @@ io.on('connection', (socket) => {
 
         const room = rooms[roomId];
 
-        // التحقق مما إذا كان الفريق يحتوي على قائد مسبقاً
+        // التحقق من حجز مقعد القائد للفريق
         if (isLeader) {
             const existingLeader = Object.values(room.players).find(
                 p => p.team === team && p.isLeader && p.id !== socket.id
@@ -122,7 +122,21 @@ io.on('connection', (socket) => {
         if (type === 'blue') room.scoreBlue++;
         if (type === 'red') room.scoreRed++;
 
-        if (type === 'black') {
+        // التحقق من فوز الفريق الأزرق (وصوله إلى 16 كلمة)
+        if (room.scoreBlue >= 16) {
+            room.gameOver = true;
+            clearInterval(room.timerInterval);
+            room.isTimerRunning = false;
+            io.to(roomId).emit('gameWin', { winningTeam: 'blue' });
+        } 
+        // التحقق من فوز الفريق الأحمر (وصوله إلى 15 كلمة)
+        else if (room.scoreRed >= 15) {
+            room.gameOver = true;
+            clearInterval(room.timerInterval);
+            room.isTimerRunning = false;
+            io.to(roomId).emit('gameWin', { winningTeam: 'red' });
+        } 
+        else if (type === 'black') {
             room.gameOver = true;
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
