@@ -81,6 +81,27 @@
             box-shadow: 0 0 18px rgba(0, 240, 255, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.2);
         }
 
+        .room-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .room-row .input-cyber { margin-bottom: 0; flex: 1; }
+        .btn-create-room {
+            background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
+            padding: 0 14px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .btn-create-room:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 15px rgba(0,240,255,0.5); }
+
+        /* قائمة إنشاء الغرفة الصغيرة */
+        .room-created-box {
+            background: rgba(0, 240, 255, 0.05); border: 1px dashed var(--accent-cyan); border-radius: 10px;
+            padding: 12px; margin-bottom: 12px; display: none; flex-direction: column; gap: 8px; text-align: right;
+        }
+        .room-created-box .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        .room-created-box span { color: var(--accent-cyan); font-family: monospace; font-weight: bold; }
+        .btn-copy-link {
+            background: var(--accent-cyan); color: #000; border: none; padding: 8px; border-radius: 6px;
+            font-weight: bold; cursor: pointer; text-align: center; font-size: 0.9rem; transition: 0.2s;
+        }
+        .btn-copy-link:hover { box-shadow: 0 0 15px rgba(0, 240, 255, 0.7); }
+
         .team-select-group { display: flex; gap: 12px; margin-bottom: 15px; }
         .btn-team-cyber { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 2px solid transparent; color: #fff; }
         .btn-team-cyber.blue { background: rgba(0, 210, 255, 0.1); border-color: var(--team-blue); color: var(--team-blue); }
@@ -149,8 +170,21 @@
             <h2>شيفرة</h2>
             <div style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 20px;">أدخل اسمك، رمز الغرفة، وحدد فريقك ودورك</div>
 
-            <!-- تم جعل حقل رمز الغرفة فارغاً -->
-            <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: 1234)" value="">
+            <!-- صف إدخال رمز الغرفة مع زر إنشاء غرفة -->
+            <div class="room-row">
+                <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: A3x9)" value="">
+                <button class="btn-create-room" onclick="generateNewRoom()">إنشاء غرفة 🎲</button>
+            </div>
+
+            <!-- القائمة الصغيرة لعرض تفاصيل الغرفة المُنشأة وزر النسخ -->
+            <div class="room-created-box" id="room-created-box">
+                <div class="info-row">
+                    <span>تم إنشاء الغرفة بنجاح!</span>
+                    <span id="created-room-code-text" style="color: #fff;">-</span>
+                </div>
+                <button class="btn-copy-link" onclick="copyRoomLink()">📋 نسخ رابط الغرفة للأصدقاء</button>
+            </div>
+
             <input type="text" id="player-name-input" class="input-cyber" placeholder="اسمك الكريم..." autofocus>
 
             <div class="team-select-group">
@@ -224,6 +258,45 @@
         let roomId = '';
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
+
+        // دالة توليد معرف عشوائي مكون من أرقام وأحرف (مثال: A7k2M)
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let result = '';
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
+        // عند الضغط على زر إنشاء غرفة جديدة
+        function generateNewRoom() {
+            const newCode = generateRoomCode();
+            document.getElementById('room-id-input').value = newCode;
+            document.getElementById('created-room-code-text').innerText = newCode;
+            document.getElementById('room-created-box').style.display = 'flex';
+        }
+
+        // دالة لنسخ رابط الغرفة ليتم مشاركته مع الأصدقاء
+        function copyRoomLink() {
+            const roomCode = document.getElementById('room-id-input').value;
+            const fullLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            
+            navigator.clipboard.writeText(fullLink).then(() => {
+                alert('تم نسخ رابط الغرفة بنجاح! يمكنك إرساله لأصدقائك الآن.');
+            }).catch(err => {
+                console.error('فشل النسخ', err);
+            });
+        }
+
+        // فحص ما إذا كان الرابط يحتوي على رمز غرفة جاهز تلقائياً عند فتح الصفحة
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomParam = urlParams.get('room');
+            if (roomParam) {
+                document.getElementById('room-id-input').value = roomParam;
+            }
+        });
 
         function selectTeam(team) {
             playerData.team = team;
