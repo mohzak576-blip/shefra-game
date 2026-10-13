@@ -95,11 +95,26 @@
         }
         .room-created-box .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
         .room-created-box span { color: var(--accent-cyan); font-family: monospace; font-weight: bold; }
+        
+        .copy-wrapper { display: flex; align-items: center; gap: 10px; position: relative; }
         .btn-copy-link {
-            background: var(--accent-cyan); color: #000; border: none; padding: 8px; border-radius: 6px;
+            flex: 1; background: var(--accent-cyan); color: #000; border: none; padding: 8px; border-radius: 6px;
             font-weight: bold; cursor: pointer; text-align: center; font-size: 0.9rem; transition: 0.2s;
         }
         .btn-copy-link:hover { box-shadow: 0 0 15px rgba(0, 240, 255, 0.7); }
+        
+        /* تنسيق الإشعار الصغير بجانب زر النسخ */
+        .copy-toast {
+            font-size: 0.8rem;
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: none;
+            white-space: nowrap;
+            animation: fadeInOut 0.3s ease;
+        }
 
         .team-select-group { display: flex; gap: 12px; margin-bottom: 15px; }
         .btn-team-cyber { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 2px solid transparent; color: #fff; }
@@ -228,7 +243,10 @@
                     <span>تم إنشاء الغرفة بنجاح!</span>
                     <span id="created-room-code-text" style="color: #fff;">-</span>
                 </div>
-                <button class="btn-copy-link" onclick="copyRoomLink()">📋 نسخ رابط الغرفة للأصدقاء</button>
+                <div class="copy-wrapper">
+                    <button class="btn-copy-link" onclick="copyRoomLink()">📋 نسخ رابط الغرفة للأصدقاء</button>
+                    <span id="copy-toast" class="copy-toast">تم النسخ! ✨</span>
+                </div>
             </div>
 
             <input type="text" id="player-name-input" class="input-cyber" placeholder="اسمك الكريم..." autofocus>
@@ -324,6 +342,7 @@
         let roomId = '';
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
+        let copyTimeout = null;
 
         function generateRoomCode() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -346,7 +365,14 @@
             const fullLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
             
             navigator.clipboard.writeText(fullLink).then(() => {
-                alert('تم نسخ رابط الغرفة بنجاح! يمكنك إرساله لأصدقائك الآن.');
+                const toast = document.getElementById('copy-toast');
+                toast.style.display = 'inline-block';
+
+                if (copyTimeout) clearTimeout(copyTimeout);
+
+                copyTimeout = setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000); // تختفي بعد 3 ثواني
             }).catch(err => {
                 console.error('فشل النسخ', err);
             });
