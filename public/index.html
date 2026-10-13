@@ -364,7 +364,6 @@
             playerData.team = team;
             playerData.isLeader = isLeader;
 
-            // حفظ البيانات الصحيحة في sessionStorage
             sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team, isLeader }));
 
             document.getElementById('login-overlay').style.display = 'none';
@@ -399,18 +398,25 @@
             const savedSession = sessionStorage.getItem('shefra_session');
             
             if (savedSession) {
-                const data = JSON.parse(savedSession);
-                if (data && data.name && data.room) {
-                    executeJoin(data.name, data.room, data.team, data.isLeader);
-                } else {
+                try {
+                    const data = JSON.parse(savedSession);
+                    if (data && data.name && data.room) {
+                        document.getElementById('player-name-input').value = data.name;
+                        document.getElementById('room-id-input').value = data.room;
+                        selectTeam(data.team || 'blue');
+                        document.getElementById('is-leader-check').checked = !!data.isLeader;
+                        executeJoin(data.name, data.room, data.team || 'blue', !!data.isLeader);
+                        return;
+                    }
+                } catch (e) {
                     sessionStorage.removeItem('shefra_session');
                 }
-            } else {
-                const urlParams = new URLSearchParams(window.location.search);
-                const roomParam = urlParams.get('room');
-                if (roomParam) {
-                    document.getElementById('room-id-input').value = roomParam;
-                }
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const roomParam = urlParams.get('room');
+            if (roomParam) {
+                document.getElementById('room-id-input').value = roomParam;
             }
         });
 
