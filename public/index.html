@@ -315,21 +315,21 @@
         }
         .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px) scale(1.02); }
 
-        /* تنسيق الكلمة المرشحة للمناقشة */
         .card.card-selected-discussion {
             border: 2px dashed var(--accent-gold) !important;
-            background: rgba(255, 204, 0, 0.12) !important;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.35);
+            background: rgba(255, 204, 0, 0.15) !important;
+            box-shadow: inset 0 0 12px rgba(255, 204, 0, 0.3), 0 0 15px rgba(255, 204, 0, 0.4);
         }
 
         .card-proposer {
-            font-size: 0.68rem;
+            font-size: 0.65rem;
             color: var(--accent-gold);
-            margin-top: 4px;
-            background: rgba(0,0,0,0.6);
-            padding: 2px 6px;
+            margin-top: 3px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 1px 6px;
             border-radius: 4px;
             border: 1px solid rgba(255, 204, 0, 0.3);
+            white-space: nowrap;
         }
 
         .card.revealed-blue { background: linear-gradient(135deg, #00d2ff, #0088cc) !important; color: #000 !important; font-weight: 900; }
@@ -424,8 +424,8 @@
 
             <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
-                <li>الضغط على أي كلمة يرشحها العضو للمناقشة ويظهر اسمه عليها بشكل مؤقت.</li>
-                <li>يضغط أي عضو في الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لكشف الكلمات المرشحة.</li>
+                <li>عند الضغط على الكلمة يظهر ظل واسم العضو للتصويت والترشيح.</li>
+                <li>لكشف الكلمة المرشحة، يضغط العضو على زر <strong>"✅ تأكيد الاختيار"</strong> ويستمر الدور متى كانت الإجابة صحيحة.</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -465,6 +465,7 @@
         </div>
 
         <div class="game-status-bar">
+            <!-- خانة التلميح تظهر للأعضاء فقط وتخفى عن القائد -->
             <div id="clue-container-box">
                 <span style="color: #8a99ad;">التلميح: </span>
                 <span id="clue-status-text" style="font-weight: 900; color: var(--accent-gold);">في انتظار التلميح...</span>
@@ -821,11 +822,8 @@
                 } else {
                     document.getElementById('clue-container-box').style.display = 'block';
                     document.getElementById('leader-panel').style.display = 'none';
-                    
-                    // إظهار زري إنهاء الدور وتأكيد الاختيار فقط إذا كان الدور دور فريق اللاعب
-                    const isMyTurn = (playerData.team === gameState.currentTurn);
-                    document.getElementById('btn-end-turn').style.display = isMyTurn ? 'inline-block' : 'none';
-                    document.getElementById('btn-confirm-selection').style.display = isMyTurn ? 'inline-block' : 'none';
+                    document.getElementById('btn-end-turn').style.display = 'inline-block';
+                    document.getElementById('btn-confirm-selection').style.display = 'inline-block';
                 }
             }
 
@@ -854,7 +852,6 @@
                 card.className = 'card';
                 card.innerText = item.word;
 
-                // إظهار الظل واسم المرشح للكلمة أثناء النقاش
                 if (item.selectedBy && !item.revealed) {
                     card.classList.add('card-selected-discussion');
                     const proposerSpan = document.createElement('div');
