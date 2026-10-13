@@ -300,6 +300,11 @@
         }
         .btn-action-end:hover { opacity: 0.9; transform: translateY(-2px); }
 
+        .btn-action-confirm {
+            background: #00ffcc; color: #000; border: none; padding: 10px 22px; font-weight: 900; border-radius: 8px; cursor: pointer; transition: 0.2s; display: none; box-shadow: 0 0 15px rgba(0,255,204,0.4);
+        }
+        .btn-action-confirm:hover { background: #00b386; transform: translateY(-2px); }
+
         .btn-action-exit {
             background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.25); padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
         }
@@ -307,11 +312,27 @@
 
         .grid-container { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; width: 100%; margin-bottom: 25px; }
         .card {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; height: 70px;
-            display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center; padding: 6px;
-            transition: all 0.25s;
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; height: 75px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center; padding: 6px;
+            position: relative; transition: all 0.25s;
         }
         .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px) scale(1.02); }
+
+        /* تظليل خفيف للبطاقة المقترحة للنقاش */
+        .card.card-selected-discussion {
+            border: 2px dashed var(--accent-gold) !important;
+            background: rgba(255, 204, 0, 0.12) !important;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+        }
+
+        .card-proposer {
+            font-size: 0.7rem;
+            color: var(--accent-gold);
+            margin-top: 4px;
+            background: rgba(0,0,0,0.4);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
 
         .card.revealed-blue { background: linear-gradient(135deg, #00d2ff, #0088cc) !important; color: #000 !important; font-weight: 900; }
         .card.revealed-red { background: linear-gradient(135deg, #ff2a6d, #b8003f) !important; color: #fff !important; font-weight: 900; }
@@ -325,7 +346,7 @@
         }
         .copyright-footer strong { color: var(--accent-cyan); }
 
-        @media (max-width: 900px) { .grid-container { grid-template-columns: repeat(4, 1fr); } .card { height: 58px; font-size: 0.85rem; } }
+        @media (max-width: 900px) { .grid-container { grid-template-columns: repeat(4, 1fr); } .card { height: 65px; font-size: 0.85rem; } }
     </style>
 </head>
 <body>
@@ -403,12 +424,11 @@
                 <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> (مثال: "بحر 2") ليشير إلى الكلمات التابعة لفريقه.</li>
             </ul>
 
-            <h4>👥 دور أعضاء الفريق:</h4>
+            <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
-                <li>يحاولون تخمين الكلمات بناءً على تلميح القائد بالنقر على البطاقات.</li>
-                <li>إذا اختاروا بطاقة فريقهم، يستمر دورهم.</li>
-                <li>إذا اختاروا بطاقة محايدة أو بطاقة الفريق المنافس، ينتهي دورهم فوراً.</li>
-                <li><strong>تحذير 💀:</strong> إذا تم اختيار البطاقة السوداء، يخسر الفريق اللعبة فوراً!</li>
+                <li>يمكن لأعضاء الفريق النقر على البطاقات للنقاش (تظهر الإضاءة واسم المقترح).</li>
+                <li>يضغط الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لاعتماد الكلمات المكشوفة.</li>
+                <li><strong>تحذير 💀:</strong> إذا اخترتم البطاقة السوداء، ستخسرون اللعبة فوراً!</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -475,6 +495,7 @@
         </div>
 
         <div class="game-actions-bar">
+            <button id="btn-confirm-selection" class="btn-action-confirm" onclick="confirmSelection()">✅ تأكيد الاختيار</button>
             <button id="btn-end-turn" class="btn-action-end" onclick="endTurn()">⏭️ إنهاء الدور</button>
             <button class="btn-action-exit" onclick="exitGame()">🚪 الخروج من اللعبة</button>
         </div>
@@ -662,14 +683,22 @@
             socket.emit('endTurn', { roomId });
         }
 
-        function revealCard(index) {
+        // تفاعل نقر البطاقة للنقاش والتصويت الأولي
+        function clickCard(index) {
             if (!currentGameState) return;
-
-            if (playerData.isLeader) return;
+            if (playerData.isLeader) return; // القائد لا يصوت
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
             if (playerData.team !== currentGameState.currentTurn) return;
 
-            socket.emit('revealCard', { roomId, index });
+            socket.emit('toggleSelectCard', { roomId, index });
+        }
+
+        // تأكيد الاختيارات النهائية من الفريق
+        function confirmSelection() {
+            if (!currentGameState) return;
+            if (playerData.isLeader || playerData.team !== currentGameState.currentTurn) return;
+
+            socket.emit('confirmSelection', { roomId });
         }
 
         function updatePlayersList(players) {
@@ -757,9 +786,11 @@
                 if (playerData.isLeader) {
                     document.getElementById('leader-panel').style.display = 'flex';
                     document.getElementById('btn-end-turn').style.display = 'none';
+                    document.getElementById('btn-confirm-selection').style.display = 'none';
                 } else {
                     document.getElementById('leader-panel').style.display = 'none';
                     document.getElementById('btn-end-turn').style.display = 'inline-block';
+                    document.getElementById('btn-confirm-selection').style.display = 'inline-block';
                 }
             }
 
@@ -788,6 +819,15 @@
                 card.className = 'card';
                 card.innerText = item.word;
 
+                // إذا كانت مختارة للنقاش من أحد الأعضاء
+                if (item.selectedBy && !item.revealed) {
+                    card.classList.add('card-selected-discussion');
+                    const proposerSpan = document.createElement('div');
+                    proposerSpan.className = 'card-proposer';
+                    proposerSpan.innerText = `💬 ${item.selectedBy}`;
+                    card.appendChild(proposerSpan);
+                }
+
                 if (playerData.isLeader && !item.revealed) {
                     if (item.type === 'black') {
                         card.classList.add('leader-view-black');
@@ -802,7 +842,7 @@
                     if (item.type === 'black') card.innerText = "💀 خـسـارة";
                 }
 
-                card.onclick = () => revealCard(idx);
+                card.onclick = () => clickCard(idx);
                 grid.appendChild(card);
             });
         });
