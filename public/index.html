@@ -318,7 +318,6 @@
         }
         .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px) scale(1.02); }
 
-        /* تظليل خفيف للبطاقة المقترحة للنقاش */
         .card.card-selected-discussion {
             border: 2px dashed var(--accent-gold) !important;
             background: rgba(255, 204, 0, 0.12) !important;
@@ -421,12 +420,12 @@
             <h4>👑 دور القائد (Spymaster):</h4>
             <ul>
                 <li>يعرف أماكن وألوان الكلمات الخاصة بفريقه والكلمة السوداء القاتلة.</li>
-                <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> (مثال: "بحر 2") ليشير إلى الكلمات التابعة لفريقه.</li>
+                <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> في دور فريقه حصرياً.</li>
             </ul>
 
             <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
-                <li>يمكن لأعضاء الفريق النقر على البطاقات للنقاش (تظهر الإضاءة واسم المقترح).</li>
+                <li>يمكن لأعضاء الفريق التصويت على الكلمات في دور فريقهم بالنقر عليها (تظهر الإضاءة واسم المقترح).</li>
                 <li>يضغط الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لاعتماد الكلمات المكشوفة.</li>
                 <li><strong>تحذير 💀:</strong> إذا اخترتم البطاقة السوداء، ستخسرون اللعبة فوراً!</li>
             </ul>
@@ -633,6 +632,8 @@
             roomId = room;
             playerData.isLeader = isLeader;
 
+            sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team: playerData.team, isLeader }));
+
             socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader });
         }
 
@@ -656,17 +657,48 @@
             window.location.href = window.location.pathname;
         }
 
+        // استعادة الجلسة تلقائياً عند تحديث المتصفح (F5) دون الحاجة لإعادة إدخال البيانات
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
             if (roomParam) {
                 document.getElementById('room-id-input').value = roomParam;
             }
+
+            const savedSession = sessionStorage.getItem('shefra_session');
+            if (savedSession) {
+                try {
+                    const session = JSON.parse(savedSession);
+                    if (session.name && session.room) {
+                        playerData.name = session.name;
+                        roomId = session.room;
+                        playerData.team = session.team || 'blue';
+                        playerData.isLeader = !!session.isLeader;
+
+                        document.getElementById('player-name-input').value = session.name;
+                        document.getElementById('room-id-input').value = session.room;
+                        document.getElementById('is-leader-check').checked = session.isLeader;
+                        selectTeam(session.team);
+
+                        socket.emit('joinRoom', { 
+                            roomId: session.room, 
+                            playerName: session.name, 
+                            team: session.team, 
+                            isLeader: session.isLeader 
+                        });
+                    }
+                } catch (e) {
+                    console.error('Session restore error', e);
+                }
+            }
         });
 
         function submitClue() {
             if (!currentGameState) return;
-            if (playerData.team !== currentGameState.currentTurn) return;
+            if (!playerData.isLeader || playerData.team !== currentGameState.currentTurn) {
+                alert('عذراً، ليس دور فريقك أو لست القائد!');
+                return;
+            }
 
             const word = document.getElementById('leader-clue-word').value.trim();
             const count = document.getElementById('leader-clue-count').value;
@@ -683,17 +715,18 @@
             socket.emit('endTurn', { roomId });
         }
 
-        // تفاعل نقر البطاقة للنقاش والتصويت الأولي
         function clickCard(index) {
             if (!currentGameState) return;
-            if (playerData.isLeader) return; // القائد لا يصوت
+            if (playerData.isLeader) return; 
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
-            if (playerData.team !== currentGameState.currentTurn) return;
+            if (playerData.team !== currentGameState.currentTurn) {
+                alert('ليس دور فريقك الآن!');
+                return;
+            }
 
             socket.emit('toggleSelectCard', { roomId, index });
         }
 
-        // تأكيد الاختيارات النهائية من الفريق
         function confirmSelection() {
             if (!currentGameState) return;
             if (playerData.isLeader || playerData.team !== currentGameState.currentTurn) return;
@@ -776,12 +809,6 @@
 
             if (gameState.players && gameState.players.some(p => p.id === socket.id)) {
                 document.getElementById('login-overlay').style.display = 'none';
-                sessionStorage.setItem('shefra_session', JSON.stringify({ 
-                    name: playerData.name, 
-                    room: roomId, 
-                    team: playerData.team, 
-                    isLeader: playerData.isLeader 
-                }));
 
                 if (playerData.isLeader) {
                     document.getElementById('leader-panel').style.display = 'flex';
@@ -819,7 +846,6 @@
                 card.className = 'card';
                 card.innerText = item.word;
 
-                // إذا كانت مختارة للنقاش من أحد الأعضاء
                 if (item.selectedBy && !item.revealed) {
                     card.classList.add('card-selected-discussion');
                     const proposerSpan = document.createElement('div');
