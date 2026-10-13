@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Mohzak">
     <meta name="copyright" content="Copyright © 2026 Mohzak. All rights reserved.">
+    
+    <!-- الكلمات المفتاحية لمحركات البحث SEO -->
+    <meta name="keywords" content="شيفرة اونلاين, لعبة شيفره, لعبة شيفره اونلاين, لعبة الشفرات, ألعاب جماعية اونلاين, لعبة كودenames بالعربي, codenames arabic, hidden codes game, online party game, لعبة ألغاز وكلمات">
+    <meta name="description" content="لعبة جماعية تفاعلية ممتعة تعتمد على الذكاء وتخمين الكلمات والربط بينها. العبها مباشرة أونلاين بدون تنزيل.">
+
     <meta name="google-site-verification" content="zFY9i9pAuV6d5rdM7Q2ere71WBEhgnsXfCnXPh9ngiQ" />
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9297059128747721"
      crossorigin="anonymous"></script>
@@ -671,148 +676,6 @@
 
             socket.emit('revealCard', { roomId, index });
         }
-
-        function updatePlayersList(players) {
-            const bluePlayersList = document.getElementById('blue-players-list');
-            const redPlayersList = document.getElementById('red-players-list');
-            const blueLeaderName = document.getElementById('blue-leader-name');
-            const redLeaderName = document.getElementById('red-leader-name');
-
-            bluePlayersList.innerHTML = '';
-            redPlayersList.innerHTML = '';
-            blueLeaderName.innerText = 'غير محدد';
-            redLeaderName.innerText = 'غير محدد';
-
-            if (!players) return;
-
-            players.forEach(player => {
-                const pName = player.name || player.playerName;
-                if (!pName) return;
-
-                if (player.team === 'blue') {
-                    if (player.isLeader) {
-                        blueLeaderName.innerText = pName;
-                    } else {
-                        const p = document.createElement('div');
-                        p.className = 'player-badge';
-                        p.innerText = pName;
-                        bluePlayersList.appendChild(p);
-                    }
-                } else if (player.team === 'red') {
-                    if (player.isLeader) {
-                        redLeaderName.innerText = pName;
-                    } else {
-                        const p = document.createElement('div');
-                        p.className = 'player-badge';
-                        p.innerText = pName;
-                        redPlayersList.appendChild(p);
-                    }
-                }
-            });
-        }
-
-        socket.on('blackCardLoss', ({ losingTeam }) => {
-            playScarySound();
-            const lossOverlay = document.getElementById('scary-loss-overlay');
-            const lossTitle = document.getElementById('scary-title-text');
-
-            if (playerData.team === losingTeam) {
-                lossTitle.innerText = "💀 لقد خسر فريقك!";
-            } else {
-                lossTitle.innerText = "🎉 فاز فريقك! الفريق المنافس فتح البطاقة السوداء!";
-            }
-
-            lossOverlay.style.display = 'flex';
-        });
-
-        socket.on('gameWin', ({ winningTeam }) => {
-            playWinSound();
-            const winOverlay = document.getElementById('scary-win-overlay');
-            const winTitle = document.getElementById('win-title-text');
-            const winSubtitle = document.getElementById('win-subtitle-text');
-
-            if (playerData.team === winningTeam) {
-                winTitle.innerText = "🏆 لقد ربحت!";
-                winSubtitle.innerText = `تهانينا، لقد كشف فريقك (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) جميع الكلمات بنجاح! ✨`;
-            } else {
-                winTitle.innerText = "😔 لقد خسرت التحدي!";
-                winSubtitle.innerText = `الفريق المنافس (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) تمكن من كشف جميع كلماته أولاً!`;
-            }
-
-            winOverlay.style.display = 'flex';
-        });
-
-        socket.on('updateGameState', (gameState) => {
-            currentGameState = gameState;
-
-            if (gameState.players && gameState.players.some(p => p.id === socket.id)) {
-                document.getElementById('login-overlay').style.display = 'none';
-                sessionStorage.setItem('shefra_session', JSON.stringify({ 
-                    name: playerData.name, 
-                    room: roomId, 
-                    team: playerData.team, 
-                    isLeader: playerData.isLeader 
-                }));
-
-                if (playerData.isLeader) {
-                    document.getElementById('leader-panel').style.display = 'flex';
-                    document.getElementById('btn-end-turn').style.display = 'none';
-                } else {
-                    document.getElementById('leader-panel').style.display = 'none';
-                    document.getElementById('btn-end-turn').style.display = 'inline-block';
-                }
-            }
-
-            document.getElementById('score-blue').innerText = `${gameState.scoreBlue} / 16`;
-            document.getElementById('score-red').innerText = `${gameState.scoreRed} / 15`;
-            document.getElementById('clue-status-text').innerText = gameState.clue;
-
-            if (gameState.players) {
-                updatePlayersList(gameState.players);
-            }
-
-            const turnInd = document.getElementById('turn-indicator');
-            if (gameState.currentTurn === 'blue') {
-                turnInd.innerText = "🔵 الفريق الأزرق"; turnInd.style.color = "var(--team-blue)";
-                document.getElementById('box-blue').classList.add('active-turn'); document.getElementById('box-red').classList.remove('active-turn');
-            } else {
-                turnInd.innerText = "🔴 الفريق الأحمر"; turnInd.style.color = "var(--team-red)";
-                document.getElementById('box-red').classList.add('active-turn'); document.getElementById('box-blue').classList.remove('active-turn');
-            }
-
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '';
-
-            gameState.cards.forEach((item, idx) => {
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerText = item.word;
-
-                if (playerData.isLeader && !item.revealed) {
-                    if (item.type === 'black') {
-                        card.classList.add('leader-view-black');
-                        card.innerText = item.word + " 💀";
-                    } else {
-                        card.style.borderBottom = `4px solid var(--team-${item.type === 'neutral' ? 'neutral' : item.type})`;
-                    }
-                }
-
-                if (item.revealed) {
-                    card.classList.add(`revealed-${item.type}`);
-                    if (item.type === 'black') card.innerText = "💀 خـسـارة";
-                }
-
-                card.onclick = () => revealCard(idx);
-                grid.appendChild(card);
-            });
-        });
-
-        socket.on('timerUpdate', ({ timer }) => {
-            const minutes = Math.floor(timer / 60);
-            const seconds = timer % 60;
-            document.getElementById('timer-display').innerText = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            document.getElementById('timer-progress-fill').style.width = `${(timer / 180) * 100}%`;
-        });
     </script>
 </body>
 </html>
