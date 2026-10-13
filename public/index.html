@@ -119,7 +119,6 @@
             white-space: nowrap;
         }
 
-        /* رسالة التنبيه الأنيقة التي تظهر بدلاً من Alert */
         .toast-notification {
             display: none;
             background: rgba(255, 0, 85, 0.15);
@@ -398,7 +397,6 @@
                 <label for="is-leader-check" style="cursor: pointer;">👑 أنا قائد الفريق (Spymaster)</label>
             </div>
 
-            <!-- عنصر التنبيه المحدث يظهر داخل البطاقة لثوانٍ معدودة -->
             <div id="toast-notification" class="toast-notification"></div>
             <div id="leader-error-toast" class="leader-error-toast"></div>
 
@@ -519,7 +517,6 @@
         let leaderToastTimeout = null;
         let toastTimeout = null;
 
-        // دالة إظهار التنبيه التلقائي لمدة 3 ثوانٍ
         function showToast(message) {
             const toast = document.getElementById('toast-notification');
             toast.innerText = message;
@@ -677,6 +674,20 @@
             if (roomParam) {
                 document.getElementById('room-id-input').value = roomParam;
             }
+
+            const savedSession = sessionStorage.getItem('shefra_session');
+            if (savedSession) {
+                try {
+                    const data = JSON.parse(savedSession);
+                    if (data && data.roomId && data.playerName) {
+                        roomId = data.roomId;
+                        playerData = data;
+                        socket.emit('joinRoom', { roomId, playerName: data.playerName, team: data.team, isLeader: data.isLeader });
+                    }
+                } catch (e) {
+                    sessionStorage.removeItem('shefra_session');
+                }
+            }
         });
 
         function submitClue() {
@@ -710,6 +721,109 @@
 
             socket.emit('revealCard', { roomId, index });
         }
+
+        // الأكداث الأساسية لتحديث حالة اللعبة واختفاء شاشة تسجيل الدخول
+        socket.on('roomJoinedSuccess', () => {
+            document.getElementById('login-overlay').style.display = 'none';
+            sessionStorage.setItem('shefra_session', JSON.stringify(roomId ? { roomId, ...playerData } : playerData));
+        });
+
+        socket.on('updateGameState', (gameState) => {
+            currentGameState = gameState;
+            document.getElementById('login-overlay').style.display = 'none';
+
+            document.getElementById('score-blue').innerText = `${gameState.blueScore} / 16`;
+            document.getElementById('score-red').innerText = `${gameState.redScore} / 15`;
+
+            const blueLeaderEl = document.getElementById('blue-leader-name');
+            const redLeaderEl = document.getElementById('red-leader-name');
+            blueLeaderEl.innerText = gameState.blueLeader || 'غير محدد';
+            redLeaderEl.innerText = gameState.redLeader || 'غير محدد';
+
+            const blueList = document.getElementById('blue-players-list');
+            const redList = document.getElementById('red-players-list');
+            blueList.innerHTML = '';
+            redList.innerHTML = '';
+
+            (gameState.bluePlayers || []).forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'player-badge';
+                div.innerText = p;
+                blueList.appendChild(div);
+            });
+
+            (gameState.redPlayers || []).forEach(p => {
+                const div = document.createElement('div');
+                div.className = 'player-badge';
+                div.innerText = p;
+                redList.appendChild(div);
+            });
+
+            const turnIndicator = document.getElementById('turn-indicator');
+            const boxBlue = document.getElementById('box-blue');
+            const boxRed = document.getElementById('box-red');
+
+            boxBlue.classList.remove('active-turn');
+            boxRed.classList.remove('active-turn');
+
+            if (gameState.currentTurn === 'blue') {
+                turnIndicator.innerText = '🔵 الفريق الأزرق';
+                turnIndicator.style.color = 'var(--team-blue)';
+                boxBlue.classList.add('active-turn');
+            } else {
+                turnIndicator.innerText = '🔴 الفريق الأحمر';
+                turnIndicator.style.color = 'var(--team-red)';
+                boxRed.classList.add('active-turn');
+            }
+
+            const clueStatus = document.getElementById('clue-status-text');
+            if (gameState.currentClue && gameState.currentClue.word) {
+                clueStatus.innerText = `${gameState.currentClue.word} (${gameState.currentClue.count})`;
+            } else {
+                clueStatus.innerText = 'في انتظار التلميح...';
+            }
+
+            const leaderPanel = document.getElementById('leader-panel');
+            if (playerData.isLeader && playerData.team === gameState.currentTurn) {
+                leaderPanel.style.display = 'flex';
+            } else {
+                leaderPanel.style.display = 'none';
+            }
+
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+
+            gameState.cards.forEach((card, idx) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                cardDiv.innerText = card.word;
+
+                if (card.revealed) {
+                    if (card.type === 'blue') cardDiv.classList.add('revealed-blue');
+                    else if (card.type === 'red') cardDiv.classList.add('revealed-red');
+                    else if (card.type === 'neutral') cardDiv.classList.add('revealed-neutral');
+                    else if (card.type === 'black') cardDiv.classList.add('revealed-black');
+                } else if (playerData.isLeader) {
+                    if (card.type === 'blue') cardDiv.style.border = '2px solid var(--team-blue)';
+                    else if (card.type === 'red') cardDiv.style.border = '2px solid var(--team-red)';
+                    else if (card.type === 'neutral') cardDiv.style.border = '1px dashed #64748b';
+                    else if (card.type === 'black') cardDiv.classList.add('leader-view-black');
+                }
+
+                cardDiv.onclick = () => revealCard(idx);
+                grid.appendChild(cardDiv);
+            });
+        });
+
+        socket.on('gameOver', ({ winner, type }) => {
+            if (type === 'black') {
+                playScarySound();
+                document.getElementById('scary-loss-overlay').style.display = 'flex';
+            } else {
+                playWinSound();
+                document.getElementById('scary-win-overlay').style.display = 'flex';
+            }
+        });
     </script>
 </body>
 </html>
