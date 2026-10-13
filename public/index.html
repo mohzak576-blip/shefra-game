@@ -463,22 +463,25 @@
             if (!players) return;
 
             players.forEach(player => {
+                const pName = player.name || player.playerName;
+                if (!pName) return;
+
                 if (player.team === 'blue') {
                     if (player.isLeader) {
-                        blueLeaderName.innerText = player.name;
+                        blueLeaderName.innerText = pName;
                     } else {
                         const p = document.createElement('div');
                         p.className = 'player-badge';
-                        p.innerText = player.name;
+                        p.innerText = pName;
                         bluePlayersList.appendChild(p);
                     }
                 } else if (player.team === 'red') {
                     if (player.isLeader) {
-                        redLeaderName.innerText = player.name;
+                        redLeaderName.innerText = pName;
                     } else {
                         const p = document.createElement('div');
                         p.className = 'player-badge';
-                        p.innerText = player.name;
+                        p.innerText = pName;
                         redPlayersList.appendChild(p);
                     }
                 }
@@ -530,10 +533,6 @@
                 card.onclick = () => revealCard(idx);
                 grid.appendChild(card);
             });
-        });
-
-        socket.on('updatePlayers', (players) => {
-            updatePlayersList(players);
         });
 
         socket.on('timerUpdate', ({ timer }) => {
