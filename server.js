@@ -43,7 +43,6 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', ({ roomId, playerName, team, isLeader }) => {
         if (!roomId) return;
 
-        // ربط السوكت بالغرفة مباشرة
         socket.roomId = roomId;
 
         if (!rooms[roomId]) {
