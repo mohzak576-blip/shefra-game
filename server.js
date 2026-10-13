@@ -101,7 +101,6 @@ io.on('connection', (socket) => {
                 room.timer--;
                 io.to(targetRoomId).emit('timerUpdate', { timer: room.timer });
             } else if (room.timer === 0) {
-                // عند انتهاء الوقت: تصفير العداد وتغيير الدور ومسح الترشيحات
                 clearInterval(room.timerInterval);
                 room.isTimerRunning = false;
                 room.timer = 180;
@@ -150,7 +149,7 @@ io.on('connection', (socket) => {
         selectedIndices.forEach(idx => {
             const card = room.cards[idx];
             card.revealed = true;
-            card.selectedBy = null; // مسح ترشيح الكلمة التي تم كشفها فقط
+            card.selectedBy = null;
 
             if (card.type === room.currentTurn) {
                 if (room.currentTurn === 'blue') room.scoreBlue++;
@@ -175,7 +174,6 @@ io.on('connection', (socket) => {
             clearInterval(room.timerInterval);
             io.to(targetRoomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
         } else if (hitWrong) {
-            // إذا كانت الإجابة خاطئة: إيقاف العداد، تصفيره، تغيير الدور ومسح الترشيحات
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
             room.timer = 180;
@@ -187,11 +185,14 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // عند الضغط على إنهاء الدور يدوياً: تصفير العداد، تغيير الدور، ومسح جميع الترشيحات
+    // التحقق من أن الفريق الذي يضغط على زر إنهاء الدور هو الفريق صاحب الدور الحالي
     socket.on('endTurn', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
+
+        const player = room.players[socket.id];
+        if (!player || player.team !== room.currentTurn) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
