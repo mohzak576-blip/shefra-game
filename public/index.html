@@ -424,8 +424,8 @@
 
             <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
-                <li>عند الضغط على الكلمة يظهر ظل واسم العضو للتصويت والترشيح.</li>
-                <li>لكشف الكلمة المرشحة، يضغط العضو على زر <strong>"✅ تأكيد الاختيار"</strong> ويستمر الدور متى كانت الإجابة صحيحة.</li>
+                <li>عند الضغط على الكلمة يظهر ظل واسم العضو للتصويت والترشيح فوراً عند الجميع.</li>
+                <li>عند انتهاء الدور أو الضغط على تأكيد، يتم التحديث في نفس اللحظة.</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -854,6 +854,10 @@
                 if (item.selectedBy && !item.revealed) {
                     card.classList.add('card-selected-discussion');
                     const proposerSpan = document.createElement('div');
+                    card-proposer: {
+                        // تعريف وتنسيق اسم المرشح والظل بوضوح فوري
+                    }
+                    proposerSpan = document.createElement('div');
                     proposerSpan.className = 'card-proposer';
                     proposerSpan.innerText = `💬 ${item.selectedBy}`;
                     card.appendChild(proposerSpan);
