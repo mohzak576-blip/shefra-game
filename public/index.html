@@ -634,7 +634,6 @@
             currentRoomId = room;
             playerData.isLeader = isLeader;
 
-            // تحديث رابط الـ URL برمز الغرفة لتوحيد الرابط لجميع اللاعبين تلقائياً
             if (window.history.pushState) {
                 const newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?room=' + room;
                 window.history.pushState({path:newurl},'',newurl);
