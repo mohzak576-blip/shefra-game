@@ -463,7 +463,7 @@
         </div>
 
         <div class="game-status-bar">
-            <!-- إخفاء مربع التلميح تماماً عن القائد وإظهاره للأعضاء فقط -->
+            <!-- مربع التلميح مخفي عن القائد ومكشوف للأعضاء فقط -->
             <div id="clue-container-box">
                 <span style="color: #8a99ad;">التلميح: </span>
                 <span id="clue-status-text" style="font-weight: 900; color: var(--accent-gold);">في انتظار التلميح...</span>
@@ -718,10 +718,6 @@
 
         function endTurn() {
             const room = getActiveRoomId();
-            if (!room) {
-                alert('حدث خطأ في رمز الغرفة!');
-                return;
-            }
             socket.emit('endTurn', { roomId: room });
         }
 
