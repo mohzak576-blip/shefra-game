@@ -1,5 +1,5 @@
 const express = require('express');
-const http = http = require('http');
+const http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 
@@ -57,7 +57,6 @@ io.on('connection', (socket) => {
             };
         }
 
-        // حفظ اللاعب باستخدام socket.id كمعرف فريد
         rooms[roomId].players[socket.id] = {
             id: socket.id,
             name: playerName,
@@ -112,7 +111,6 @@ io.on('connection', (socket) => {
             room.gameOver = true;
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
-            // إرسال حدث الخسارة بالبطاقة السوداء وتحديد الفريق الذي كان دوره
             io.to(roomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
         } else if (type === 'neutral' || type !== room.currentTurn) {
             clearInterval(room.timerInterval);
