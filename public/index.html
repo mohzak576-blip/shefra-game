@@ -298,7 +298,7 @@
         .btn-action-end:hover { opacity: 0.9; transform: translateY(-2px); }
 
         .btn-action-confirm {
-            background: #00ffcc; color: #000; border: none; padding: 10px 22px; font-weight: 900; border-radius: 8px; cursor: pointer; transition: 0.2s; display: none; box-shadow: 0 0 15px rgba(0,255,204,0.4);
+            background: #00ffcc; color: #000; border: none; padding: 10px 22px; font-weight: 900; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 15px rgba(0,255,204,0.4);
         }
         .btn-action-confirm:hover { background: #00b386; transform: translateY(-2px); }
 
@@ -315,19 +315,21 @@
         }
         .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px) scale(1.02); }
 
+        /* تنسيق الكلمة المرشحة للمناقشة */
         .card.card-selected-discussion {
             border: 2px dashed var(--accent-gold) !important;
             background: rgba(255, 204, 0, 0.12) !important;
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.35);
         }
 
         .card-proposer {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: var(--accent-gold);
             margin-top: 4px;
-            background: rgba(0,0,0,0.4);
-            padding: 1px 6px;
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
             border-radius: 4px;
+            border: 1px solid rgba(255, 204, 0, 0.3);
         }
 
         .card.revealed-blue { background: linear-gradient(135deg, #00d2ff, #0088cc) !important; color: #000 !important; font-weight: 900; }
@@ -422,8 +424,8 @@
 
             <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
-                <li>التصويت والنقاش يتم في دور الفريق فقط.</li>
-                <li>يضغط الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لاعتماد الكلمات.</li>
+                <li>الضغط على أي كلمة يرشحها العضو للمناقشة ويظهر اسمه عليها بشكل مؤقت.</li>
+                <li>يضغط أي عضو في الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لكشف الكلمات المرشحة.</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -819,8 +821,11 @@
                 } else {
                     document.getElementById('clue-container-box').style.display = 'block';
                     document.getElementById('leader-panel').style.display = 'none';
-                    document.getElementById('btn-end-turn').style.display = 'inline-block';
-                    document.getElementById('btn-confirm-selection').style.display = 'inline-block';
+                    
+                    // إظهار زري إنهاء الدور وتأكيد الاختيار فقط إذا كان الدور دور فريق اللاعب
+                    const isMyTurn = (playerData.team === gameState.currentTurn);
+                    document.getElementById('btn-end-turn').style.display = isMyTurn ? 'inline-block' : 'none';
+                    document.getElementById('btn-confirm-selection').style.display = isMyTurn ? 'inline-block' : 'none';
                 }
             }
 
@@ -849,6 +854,7 @@
                 card.className = 'card';
                 card.innerText = item.word;
 
+                // إظهار الظل واسم المرشح للكلمة أثناء النقاش
                 if (item.selectedBy && !item.revealed) {
                     card.classList.add('card-selected-discussion');
                     const proposerSpan = document.createElement('div');
