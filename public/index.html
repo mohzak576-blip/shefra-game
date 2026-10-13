@@ -139,6 +139,25 @@
             border: 2px dashed var(--accent-gold); border-radius: 16px; padding: 16px 22px; margin-bottom: 18px; display: none; align-items: center; gap: 15px; flex-wrap: wrap;
         }
 
+        /* تنسيق أزرار التحكم اللعبي والخروج */
+        .game-actions-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-end {
+            background: var(--accent-magenta); color: #fff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action-end:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-action-exit {
+            background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.25); padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action-exit:hover { background: rgba(255, 0, 85, 0.2); border-color: var(--accent-magenta); color: #fff; transform: translateY(-2px); }
+
         .grid-container { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; width: 100%; margin-bottom: 25px; }
         .card {
             background: var(--card-bg); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; height: 70px;
@@ -238,8 +257,10 @@
             <button style="background: var(--accent-gold); border: none; padding: 10px 18px; font-weight: bold; border-radius: 8px; cursor: pointer;" onclick="submitClue()">إرسال 📢</button>
         </div>
 
-        <div style="margin-bottom: 15px;" id="player-controls">
-            <button style="background: var(--accent-magenta); color: #fff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer;" onclick="endTurn()">⏭️ إنهاء الدور</button>
+        <!-- شريط التحكم بأزرار اللعب والخروج -->
+        <div class="game-actions-bar">
+            <button id="btn-end-turn" class="btn-action-end" onclick="endTurn()">⏭️ إنهاء الدور</button>
+            <button class="btn-action-exit" onclick="exitGame()">🚪 الخروج من اللعبة</button>
         </div>
 
         <div class="grid-container" id="grid"></div>
@@ -289,24 +310,22 @@
             document.getElementById('btn-select-red').classList.toggle('active', team === 'red');
         }
 
-        // دالة تنفذ عملية الانضمام الفعلي وتخزين الجلسة
         function executeJoin(name, room, team, isLeader) {
             playerData.name = name;
             roomId = room;
             playerData.team = team;
             playerData.isLeader = isLeader;
 
-            // حفظ بيانات الجلسة لحمايتها عند عمل Refresh
             sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team, isLeader }));
 
             document.getElementById('login-overlay').style.display = 'none';
 
             if (playerData.isLeader) {
                 document.getElementById('leader-panel').style.display = 'flex';
-                document.getElementById('player-controls').style.display = 'none';
+                document.getElementById('btn-end-turn').style.display = 'none';
             } else {
                 document.getElementById('leader-panel').style.display = 'none';
-                document.getElementById('player-controls').style.display = 'block';
+                document.getElementById('btn-end-turn').style.display = 'inline-block';
             }
 
             socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader: playerData.isLeader });
@@ -322,16 +341,19 @@
             executeJoin(name, room, playerData.team, isLeader);
         }
 
-        // عند تحميل الصفحة: الفحص الآلي للجلسات أو الروابط المباشرة
+        // دالة الخروج العودة للصفحة الرئيسية
+        function exitGame() {
+            sessionStorage.removeItem('shefra_session');
+            window.location.href = window.location.pathname; // إعادة توجيه تنظف الصفحة وتظهر شاشة البداية
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const savedSession = sessionStorage.getItem('shefra_session');
             
             if (savedSession) {
-                // إذا وجد جلسة مخزنة مسبقاً يكمل تلقائياً دون إظهار الشاشة الرئيسية
                 const data = JSON.parse(savedSession);
                 executeJoin(data.name, data.room, data.team, data.isLeader);
             } else {
-                // التأكد من قراءة معلمة الغرفة من الرابط إذا دخل عن طريق رابط دعوة
                 const urlParams = new URLSearchParams(window.location.search);
                 const roomParam = urlParams.get('room');
                 if (roomParam) {
