@@ -41,6 +41,8 @@ function generateGrid() {
 
 io.on('connection', (socket) => {
     socket.on('joinRoom', ({ roomId, playerName, team, isLeader }) => {
+        if (!roomId) return;
+
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 cards: generateGrid(),
@@ -82,10 +84,10 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إرسال التلميح وتحديث الحالة فوراً للجميع
+    // استقبال التلميح وبثه فوراً دون أي شروط معقدة تسبب التعطيل
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
-        if (!room || room.gameOver) return;
+        if (!room) return;
 
         room.clue = `"${word}" (مطلوب: ${count})`;
         room.timer = 180;
@@ -111,9 +113,9 @@ io.on('connection', (socket) => {
 
     socket.on('toggleSelectCard', ({ roomId, index }) => {
         const room = rooms[roomId];
-        if (!room || room.gameOver) return;
+        if (!room) return;
         const player = room.players[socket.id];
-        if (!player || player.isLeader || player.team !== room.currentTurn || room.cards[index].revealed) return;
+        if (!player || player.isLeader || room.cards[index].revealed) return;
 
         if (room.cards[index].selectedBy === player.name) {
             room.cards[index].selectedBy = null;
@@ -126,9 +128,7 @@ io.on('connection', (socket) => {
 
     socket.on('confirmSelection', ({ roomId }) => {
         const room = rooms[roomId];
-        if (!room || room.gameOver) return;
-        const player = room.players[socket.id];
-        if (!player || player.isLeader || player.team !== room.currentTurn) return;
+        if (!room) return;
 
         const selectedIndices = room.cards
             .map((card, idx) => ({ card, idx }))
@@ -179,10 +179,10 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // تصحيح إنهاء الدور ليتم بسلاسة ودون تعقيد شروط اللاعب
+    // إتاحة إنهاء الدور مباشرة للغرفة الحالية
     socket.on('endTurn', ({ roomId }) => {
         const room = rooms[roomId];
-        if (!room || room.gameOver) return;
+        if (!room) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
