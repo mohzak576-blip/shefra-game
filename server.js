@@ -114,14 +114,12 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // ترشيح الكلمة فقط إذا كان العضو ينتمي للفريق صاحب الدور الحالي
     socket.on('toggleSelectCard', ({ index, roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
         const player = room.players[socket.id];
         
-        // التحقق: لا يُسمح للقائد أو للفريق المنافس بالترشيح
         if (!player || player.isLeader || player.team !== room.currentTurn || room.cards[index].revealed) return;
 
         if (room.cards[index].selectedBy === player.name) {
@@ -133,14 +131,12 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // تأكيد الاختيار فقط للفريق صاحب الدور الحالي
     socket.on('confirmSelection', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
         const player = room.players[socket.id];
 
-        // التحقق من صلاحية الفريق صاحب الدور
         if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         const selectedIndices = room.cards
@@ -192,7 +188,6 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إنهاء الدور يدوياً
     socket.on('endTurn', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
