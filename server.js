@@ -101,8 +101,10 @@ io.on('connection', (socket) => {
                 room.timer--;
                 io.to(targetRoomId).emit('timerUpdate', { timer: room.timer });
             } else if (room.timer === 0) {
+                // عند انتهاء الوقت: تصفير العداد وتغيير الدور ومسح الترشيحات
                 clearInterval(room.timerInterval);
                 room.isTimerRunning = false;
+                room.timer = 180;
                 room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
                 room.clue = "في انتظار التلميح من القائد...";
                 room.cards.forEach(c => c.selectedBy = null);
@@ -113,15 +115,13 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // ترشيح الكلمة للمناقشة فقط بدون كشفها
     socket.on('toggleSelectCard', ({ index, roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
         const player = room.players[socket.id];
         
-        // السماح فقط للأعضاء (ليس القادة) وفي دور فريقهم بالترشيح
-        if (!player || player.isLeader || player.team !== room.currentTurn || room.cards[index].revealed) return;
+        if (!player || player.isLeader || room.cards[index].revealed) return;
 
         if (room.cards[index].selectedBy === player.name) {
             room.cards[index].selectedBy = null;
@@ -132,14 +132,10 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // تأكيد الكلمات المرشحة وكشفها
     socket.on('confirmSelection', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
-
-        const player = room.players[socket.id];
-        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         const selectedIndices = room.cards
             .map((card, idx) => ({ card, idx }))
@@ -154,7 +150,7 @@ io.on('connection', (socket) => {
         selectedIndices.forEach(idx => {
             const card = room.cards[idx];
             card.revealed = true;
-            card.selectedBy = null;
+            card.selectedBy = null; // مسح ترشيح الكلمة التي تم كشفها فقط
 
             if (card.type === room.currentTurn) {
                 if (room.currentTurn === 'blue') room.scoreBlue++;
@@ -165,8 +161,6 @@ io.on('connection', (socket) => {
                 hitWrong = true;
             }
         });
-
-        room.cards.forEach(c => c.selectedBy = null);
 
         if (room.scoreBlue >= 16) {
             room.gameOver = true;
@@ -181,23 +175,23 @@ io.on('connection', (socket) => {
             clearInterval(room.timerInterval);
             io.to(targetRoomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
         } else if (hitWrong) {
+            // إذا كانت الإجابة خاطئة: إيقاف العداد، تصفيره، تغيير الدور ومسح الترشيحات
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
+            room.timer = 180;
             room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
             room.clue = "في انتظار التلميح من القائد...";
+            room.cards.forEach(c => c.selectedBy = null);
         }
 
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إنهاء الدور فوراً ونقله للفريق الآخر
+    // عند الضغط على إنهاء الدور يدوياً: تصفير العداد، تغيير الدور، ومسح جميع الترشيحات
     socket.on('endTurn', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
-
-        const player = room.players[socket.id];
-        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
