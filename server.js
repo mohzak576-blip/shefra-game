@@ -114,14 +114,15 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // ترشيح الكلمة وبثها فوراً للجميع في الغرفة بنفس اللحظة
+    // ترشيح الكلمة فقط إذا كان العضو ينتمي للفريق صاحب الدور الحالي
     socket.on('toggleSelectCard', ({ index, roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
         const player = room.players[socket.id];
         
-        if (!player || player.isLeader || room.cards[index].revealed) return;
+        // التحقق: لا يُسمح للقائد أو للفريق المنافس بالترشيح
+        if (!player || player.isLeader || player.team !== room.currentTurn || room.cards[index].revealed) return;
 
         if (room.cards[index].selectedBy === player.name) {
             room.cards[index].selectedBy = null;
@@ -132,10 +133,15 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // تأكيد الاختيار فقط للفريق صاحب الدور الحالي
     socket.on('confirmSelection', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
+        const player = room.players[socket.id];
+
+        // التحقق من صلاحية الفريق صاحب الدور
+        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         const selectedIndices = room.cards
             .map((card, idx) => ({ card, idx }))
@@ -186,14 +192,14 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إنهاء الدور يدوياً وبث التحديث الفوري لجميع الأعضاء والقائد في نفس اللحظة
+    // إنهاء الدور يدوياً
     socket.on('endTurn', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
 
         const player = room.players[socket.id];
-        if (!player || player.team !== room.currentTurn) return;
+        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
