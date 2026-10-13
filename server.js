@@ -114,6 +114,7 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // ترشيح الكلمة وبثها فوراً للجميع في الغرفة بنفس اللحظة
     socket.on('toggleSelectCard', ({ index, roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
@@ -185,7 +186,7 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // التحقق من أن الفريق الذي يضغط على زر إنهاء الدور هو الفريق صاحب الدور الحالي
+    // إنهاء الدور يدوياً وبث التحديث الفوري لجميع الأعضاء والقائد في نفس اللحظة
     socket.on('endTurn', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
