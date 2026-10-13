@@ -103,7 +103,6 @@
         }
         .btn-copy-link:hover { box-shadow: 0 0 15px rgba(0, 240, 255, 0.7); }
         
-        /* تنسيق الإشعار الصغير بجانب زر النسخ */
         .copy-toast {
             font-size: 0.8rem;
             color: #00ffcc;
@@ -113,7 +112,6 @@
             border-radius: 6px;
             display: none;
             white-space: nowrap;
-            animation: fadeInOut 0.3s ease;
         }
 
         .team-select-group { display: flex; gap: 12px; margin-bottom: 15px; }
@@ -132,6 +130,39 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .btn-launch:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
+
+        /* كبسة دليل اللعب */
+        .btn-guide {
+            background: transparent;
+            border: none;
+            color: #8a99ad;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 14px;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .btn-guide:hover { color: var(--accent-cyan); }
+
+        /* النافذة المنبثقة لدليل اللعب */
+        .guide-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            display: none; justify-content: center; align-items: center; z-index: 400; padding: 20px;
+        }
+        .guide-content {
+            background: #0d1220; border: 2px solid var(--accent-cyan); border-radius: 20px;
+            padding: 25px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto;
+            color: #e2e8f0; text-align: right; box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+        }
+        .guide-content h3 { color: var(--accent-cyan); font-size: 1.6rem; margin-bottom: 15px; text-align: center; }
+        .guide-content h4 { color: var(--accent-gold); margin-top: 15px; margin-bottom: 5px; }
+        .guide-content ul { padding-right: 20px; line-height: 1.6; font-size: 0.95rem; }
+        .btn-close-guide {
+            background: var(--accent-magenta); color: #fff; border: none; padding: 10px 25px;
+            font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%;
+        }
 
         .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
         .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
@@ -262,6 +293,40 @@
             </div>
 
             <button class="btn-launch" onclick="enterGame()">الانضمام إلى الغرفة 🚀</button>
+            
+            <!-- زر دليل اللعب -->
+            <div>
+                <button class="btn-guide" onclick="openGuide()">📖 دليل اللعب وطريقة الشرح</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة دليل اللعب المنبثقة -->
+    <div class="guide-modal" id="guide-modal">
+        <div class="guide-content">
+            <h3>📖 دليل لعبة شيفرة</h3>
+            <p>لعبة شيفرة هي لعبة ذكاء وتخمين جماعية بين فريقين (الأزرق والأحمر).</p>
+            
+            <h4>🎯 الهدف من اللعبة:</h4>
+            <ul>
+                <li>كشف جميع الكلمات الخاصة بفريقك قبل الفريق المنافس.</li>
+            </ul>
+
+            <h4>👑 دور القائد (Spymaster):</h4>
+            <ul>
+                <li>يعرف أماكن وألوان الكلمات الخاصة بفريقه والكلمة السوداء القاتلة.</li>
+                <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> (مثال: "بحر 2") ليشير إلى الكلمات التابعة لفريقه.</li>
+            </ul>
+
+            <h4>👥 دور أعضاء الفريق:</h4>
+            <ul>
+                <li>يحاولون تخمين الكلمات بناءً على تلميح القائد بالنقر على البطاقات.</li>
+                <li>إذا اختاروا بطاقة فريقهم، يستمر دورهم.</li>
+                <li>إذا اختاروا بطاقة محايدة أو بطاقة الفريق المنافس، ينتهي دورهم فوراً.</li>
+                <li><strong>تحذير 💀:</strong> إذا تم اختيار البطاقة السوداء، يخسر الفريق اللعبة فوراً!</li>
+            </ul>
+
+            <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
         </div>
     </div>
 
@@ -344,6 +409,14 @@
         let currentGameState = null;
         let copyTimeout = null;
 
+        function openGuide() {
+            document.getElementById('guide-modal').style.display = 'flex';
+        }
+
+        function closeGuide() {
+            document.getElementById('guide-modal').style.display = 'none';
+        }
+
         function generateRoomCode() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
@@ -372,7 +445,7 @@
 
                 copyTimeout = setTimeout(() => {
                     toast.style.display = 'none';
-                }, 3000); // تختفي بعد 3 ثواني
+                }, 3000);
             }).catch(err => {
                 console.error('فشل النسخ', err);
             });
