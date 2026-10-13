@@ -84,7 +84,6 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // استقبال التلميح وبثه فوراً دون أي شروط معقدة تسبب التعطيل
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
         if (!room) return;
@@ -179,7 +178,6 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إتاحة إنهاء الدور مباشرة للغرفة الحالية
     socket.on('endTurn', ({ roomId }) => {
         const room = rooms[roomId];
         if (!room) return;
