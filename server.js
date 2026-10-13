@@ -43,6 +43,9 @@ io.on('connection', (socket) => {
     socket.on('joinRoom', ({ roomId, playerName, team, isLeader }) => {
         if (!roomId) return;
 
+        // ربط السوكت بالغرفة مباشرة
+        socket.roomId = roomId;
+
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 cards: generateGrid(),
@@ -84,9 +87,9 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إرسال التلميح وبدء العداد فوراً وبث الحالة لجميع أعضاء الغرفة
-    socket.on('submitClue', ({ roomId, word, count }) => {
-        const room = rooms[roomId];
+    socket.on('submitClue', ({ word, count, roomId }) => {
+        const targetRoomId = roomId || socket.roomId;
+        const room = rooms[targetRoomId];
         if (!room) return;
 
         room.clue = `"${word}" (مطلوب: ${count})`;
@@ -97,22 +100,23 @@ io.on('connection', (socket) => {
         room.timerInterval = setInterval(() => {
             if (room.timer > 0 && room.isTimerRunning) {
                 room.timer--;
-                io.to(roomId).emit('timerUpdate', { timer: room.timer });
+                io.to(targetRoomId).emit('timerUpdate', { timer: room.timer });
             } else if (room.timer === 0) {
                 clearInterval(room.timerInterval);
                 room.isTimerRunning = false;
                 room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
                 room.clue = "في انتظار التلميح من القائد...";
                 room.cards.forEach(c => c.selectedBy = null);
-                io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+                io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
             }
         }, 1000);
 
-        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+        io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    socket.on('toggleSelectCard', ({ roomId, index }) => {
-        const room = rooms[roomId];
+    socket.on('toggleSelectCard', ({ index, roomId }) => {
+        const targetRoomId = roomId || socket.roomId;
+        const room = rooms[targetRoomId];
         if (!room) return;
         const player = room.players[socket.id];
         if (!player || player.isLeader || room.cards[index].revealed) return;
@@ -123,11 +127,12 @@ io.on('connection', (socket) => {
             room.cards[index].selectedBy = player.name;
         }
 
-        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+        io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
     socket.on('confirmSelection', ({ roomId }) => {
-        const room = rooms[roomId];
+        const targetRoomId = roomId || socket.roomId;
+        const room = rooms[targetRoomId];
         if (!room) return;
 
         const selectedIndices = room.cards
@@ -160,15 +165,15 @@ io.on('connection', (socket) => {
         if (room.scoreBlue >= 16) {
             room.gameOver = true;
             clearInterval(room.timerInterval);
-            io.to(roomId).emit('gameWin', { winningTeam: 'blue' });
+            io.to(targetRoomId).emit('gameWin', { winningTeam: 'blue' });
         } else if (room.scoreRed >= 15) {
             room.gameOver = true;
             clearInterval(room.timerInterval);
-            io.to(roomId).emit('gameWin', { winningTeam: 'red' });
+            io.to(targetRoomId).emit('gameWin', { winningTeam: 'red' });
         } else if (hitBlack) {
             room.gameOver = true;
             clearInterval(room.timerInterval);
-            io.to(roomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
+            io.to(targetRoomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
         } else if (hitWrong) {
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
@@ -176,12 +181,12 @@ io.on('connection', (socket) => {
             room.clue = "في انتظار التلميح من القائد...";
         }
 
-        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+        io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // إنهاء الدور والتنقل المباشر للفريق الآخر
     socket.on('endTurn', ({ roomId }) => {
-        const room = rooms[roomId];
+        const targetRoomId = roomId || socket.roomId;
+        const room = rooms[targetRoomId];
         if (!room) return;
 
         clearInterval(room.timerInterval);
@@ -191,18 +196,17 @@ io.on('connection', (socket) => {
         room.clue = "في انتظار التلميح من القائد...";
         room.cards.forEach(c => c.selectedBy = null);
         
-        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+        io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
     socket.on('disconnect', () => {
-        for (const roomId in rooms) {
-            if (rooms[roomId].players[socket.id]) {
-                delete rooms[roomId].players[socket.id];
-                io.to(roomId).emit('updateGameState', {
-                    ...rooms[roomId],
-                    players: Object.values(rooms[roomId].players)
-                });
-            }
+        const roomId = socket.roomId;
+        if (roomId && rooms[roomId]) {
+            delete rooms[roomId].players[socket.id];
+            io.to(roomId).emit('updateGameState', {
+                ...rooms[roomId],
+                players: Object.values(rooms[roomId].players)
+            });
         }
     });
 });
