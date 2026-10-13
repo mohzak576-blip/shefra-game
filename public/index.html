@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Mohzak">
     <meta name="copyright" content="Copyright © 2026 Mohzak. All rights reserved.">
-    <meta name="google-site-verification" content="zFY9i9pAuV6d5rdM7Q2ere71WBEhgnsXfCnXPh9ngiQ" />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9297059128747721"
-     crossorigin="anonymous"></script>
     <title>شيفرة - لعبة الشفرات الخفية أونلاين</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
@@ -711,6 +708,10 @@
 
         function endTurn() {
             const room = getActiveRoomId();
+            if (!room) {
+                alert('حدث خطأ في رمز الغرفة!');
+                return;
+            }
             socket.emit('endTurn', { roomId: room });
         }
 
