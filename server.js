@@ -84,11 +84,9 @@ io.on('connection', (socket) => {
 
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
+        if (!room || room.gameOver) return;
         const player = room.players[socket.id];
-        if (!room || room.gameOver || !player || !player.isLeader) return;
-        
-        // التحقق من أن القائد يرسل التلميح في دور فريقه حصرياً
-        if (player.team !== room.currentTurn) return;
+        if (!player || !player.isLeader || player.team !== room.currentTurn) return;
 
         room.clue = `"${word}" (مطلوب: ${count})`;
         room.timer = 180;
@@ -114,11 +112,9 @@ io.on('connection', (socket) => {
 
     socket.on('toggleSelectCard', ({ roomId, index }) => {
         const room = rooms[roomId];
+        if (!room || room.gameOver) return;
         const player = room.players[socket.id];
-        if (!room || room.gameOver || !player || player.isLeader || room.cards[index].revealed) return;
-        
-        // التحقق من أن العضو يجيب في دور فريقه حصرياً
-        if (player.team !== room.currentTurn) return;
+        if (!player || player.isLeader || player.team !== room.currentTurn || room.cards[index].revealed) return;
 
         if (room.cards[index].selectedBy === player.name) {
             room.cards[index].selectedBy = null;
@@ -131,8 +127,9 @@ io.on('connection', (socket) => {
 
     socket.on('confirmSelection', ({ roomId }) => {
         const room = rooms[roomId];
+        if (!room || room.gameOver) return;
         const player = room.players[socket.id];
-        if (!room || room.gameOver || !player || player.isLeader || player.team !== room.currentTurn) return;
+        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         const selectedIndices = room.cards
             .map((card, idx) => ({ card, idx }))
@@ -185,8 +182,9 @@ io.on('connection', (socket) => {
 
     socket.on('endTurn', ({ roomId }) => {
         const room = rooms[roomId];
+        if (!room || room.gameOver) return;
         const player = room.players[socket.id];
-        if (!room || room.gameOver || !player || player.team !== room.currentTurn) return;
+        if (!player || player.team !== room.currentTurn) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
