@@ -82,11 +82,11 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // إرسال التلميح وتحديث الحالة فوراً للجميع
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
         if (!room || room.gameOver) return;
 
-        // تحديث النص وإعادة الضبط فوراً
         room.clue = `"${word}" (مطلوب: ${count})`;
         room.timer = 180;
         room.isTimerRunning = true;
@@ -106,7 +106,6 @@ io.on('connection', (socket) => {
             }
         }, 1000);
 
-        // إرسال الحالة المحدثة لجميع اللاعبين في الغرفة بدون استثناء
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
@@ -180,17 +179,17 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // تصحيح إنهاء الدور ليتم بسلاسة ودون تعقيد شروط اللاعب
     socket.on('endTurn', ({ roomId }) => {
         const room = rooms[roomId];
         if (!room || room.gameOver) return;
-        const player = room.players[socket.id];
-        if (!player || player.team !== room.currentTurn) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
         room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
         room.clue = "في انتظار التلميح من القائد...";
         room.cards.forEach(c => c.selectedBy = null);
+        
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
