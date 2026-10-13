@@ -114,6 +114,26 @@
             white-space: nowrap;
         }
 
+        .leader-error-toast {
+            display: none;
+            background: rgba(255, 0, 85, 0.15);
+            border: 1px solid var(--accent-magenta);
+            color: #ff4d7d;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .team-select-group { display: flex; gap: 12px; margin-bottom: 15px; }
         .btn-team-cyber { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 2px solid transparent; color: #fff; }
         .btn-team-cyber.blue { background: rgba(0, 210, 255, 0.1); border-color: var(--team-blue); color: var(--team-blue); }
@@ -189,7 +209,6 @@
         }
         .btn-close-scary:hover { transform: scale(1.05); }
 
-        /* شاشة الفوز الحماسية */
         .scary-win-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(3, 6, 15, 0.95); display: none; flex-direction: column;
@@ -318,7 +337,6 @@
         <button class="btn-close-scary" onclick="exitGame()">إغلاق وخروج 🚪</button>
     </div>
 
-    <!-- نافذة الفوز -->
     <div class="scary-win-overlay" id="scary-win-overlay">
         <div class="win-trophy">🏆</div>
         <div class="win-title" id="win-title-text">لقد ربحت!</div>
@@ -358,6 +376,8 @@
                 <input type="checkbox" id="is-leader-check" style="transform: scale(1.2); cursor: pointer;">
                 <label for="is-leader-check" style="cursor: pointer;">👑 أنا قائد الفريق (Spymaster)</label>
             </div>
+
+            <div id="leader-error-toast" class="leader-error-toast"></div>
 
             <button class="btn-launch" onclick="enterGame()">الانضمام إلى الغرفة 🚀</button>
             
@@ -473,6 +493,7 @@
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
         let copyTimeout = null;
+        let leaderToastTimeout = null;
 
         function playScarySound() {
             try {
@@ -595,10 +616,18 @@
         }
 
         socket.on('leaderSlotTaken', ({ message }) => {
-            alert(message);
+            const errorToast = document.getElementById('leader-error-toast');
+            errorToast.innerText = message;
+            errorToast.style.display = 'block';
+
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('is-leader-check').checked = false;
             sessionStorage.removeItem('shefra_session');
+
+            if (leaderToastTimeout) clearTimeout(leaderToastTimeout);
+            leaderToastTimeout = setTimeout(() => {
+                errorToast.style.display = 'none';
+            }, 5000);
         });
 
         function exitGame() {
