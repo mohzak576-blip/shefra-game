@@ -1,5 +1,5 @@
 const express = require('express');
-const http = require('http');
+const http = http = require('http');
 const { Server } = require('socket.io');
 const path = require('path');
 
@@ -52,11 +52,12 @@ io.on('connection', (socket) => {
                 timer: 180,
                 timerInterval: null,
                 isTimerRunning: false,
+                gameOver: false,
                 players: {}
             };
         }
 
-        // حفظ اللاعب باستخدام socket.id كمعرف فريد لتجنب التكرار وضمان ظهور الاسم والخاصية بدقة
+        // حفظ اللاعب باستخدام socket.id كمعرف فريد
         rooms[roomId].players[socket.id] = {
             id: socket.id,
             name: playerName,
@@ -64,7 +65,6 @@ io.on('connection', (socket) => {
             isLeader: isLeader
         };
 
-        // تحويل قائمة اللاعبين إلى مصفوفة وإرسالها مع حالة اللعبة
         const roomData = {
             ...rooms[roomId],
             players: Object.values(rooms[roomId].players)
@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
 
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
-        if (!room) return;
+        if (!room || room.gameOver) return;
 
         room.clue = `"${word}" (مطلوب: ${count})`;
         room.timer = 180;
@@ -100,7 +100,7 @@ io.on('connection', (socket) => {
 
     socket.on('revealCard', ({ roomId, index }) => {
         const room = rooms[roomId];
-        if (!room || room.cards[index].revealed) return;
+        if (!room || room.gameOver || room.cards[index].revealed) return;
 
         room.cards[index].revealed = true;
         const type = room.cards[index].type;
@@ -108,7 +108,13 @@ io.on('connection', (socket) => {
         if (type === 'blue') room.scoreBlue++;
         if (type === 'red') room.scoreRed++;
 
-        if (type === 'black' || type === 'neutral' || type !== room.currentTurn) {
+        if (type === 'black') {
+            room.gameOver = true;
+            clearInterval(room.timerInterval);
+            room.isTimerRunning = false;
+            // إرسال حدث الخسارة بالبطاقة السوداء وتحديد الفريق الذي كان دوره
+            io.to(roomId).emit('blackCardLoss', { losingTeam: room.currentTurn });
+        } else if (type === 'neutral' || type !== room.currentTurn) {
             clearInterval(room.timerInterval);
             room.isTimerRunning = false;
             room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
@@ -120,7 +126,7 @@ io.on('connection', (socket) => {
 
     socket.on('endTurn', ({ roomId }) => {
         const room = rooms[roomId];
-        if (!room) return;
+        if (!room || room.gameOver) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
@@ -129,7 +135,6 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
-    // التعامل مع خروج اللاعب أو إغلاقه للصفحة لتحديث القائمة فوراً
     socket.on('disconnect', () => {
         for (const roomId in rooms) {
             if (rooms[roomId].players[socket.id]) {
