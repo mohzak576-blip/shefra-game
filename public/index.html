@@ -420,14 +420,13 @@
             <h4>👑 دور القائد (Spymaster):</h4>
             <ul>
                 <li>يعرف أماكن وألوان الكلمات الخاصة بفريقه والكلمة السوداء القاتلة.</li>
-                <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> في دور فريقه حصرياً.</li>
+                <li>يقوم بإعطاء تلميح في دور فريقه فقط ليظهر فوراً لجميع الأعضاء.</li>
             </ul>
 
             <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
-                <li>يمكن لأعضاء الفريق التصويت على الكلمات في دور فريقهم بالنقر عليها (تظهر الإضاءة واسم المقترح).</li>
-                <li>يضغط الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لاعتماد الكلمات المكشوفة.</li>
-                <li><strong>تحذير 💀:</strong> إذا اخترتم البطاقة السوداء، ستخسرون اللعبة فوراً!</li>
+                <li>التصويت والنقاش يتم في دور الفريق فقط.</li>
+                <li>يضغط الفريق على زر <strong>"✅ تأكيد الاختيار"</strong> لاعتماد الكلمات.</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -657,7 +656,6 @@
             window.location.href = window.location.pathname;
         }
 
-        // استعادة الجلسة تلقائياً عند تحديث المتصفح (F5) دون الحاجة لإعادة إدخال البيانات
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
