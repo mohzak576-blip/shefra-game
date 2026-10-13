@@ -508,11 +508,15 @@
 
     <script>
         const socket = io();
-        let roomId = '';
+        let currentRoomId = '';
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
         let copyTimeout = null;
         let leaderToastTimeout = null;
+
+        function getActiveRoomId() {
+            return currentRoomId || document.getElementById('room-id-input').value.trim();
+        }
 
         function playScarySound() {
             try {
@@ -593,7 +597,7 @@
         }
 
         function copyRoomLink() {
-            const roomCode = document.getElementById('room-id-input').value;
+            const roomCode = getActiveRoomId();
             const fullLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
             
             navigator.clipboard.writeText(fullLink).then(() => {
@@ -628,12 +632,12 @@
             const isLeader = document.getElementById('is-leader-check').checked;
             
             playerData.name = name;
-            roomId = room;
+            currentRoomId = room;
             playerData.isLeader = isLeader;
 
             sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team: playerData.team, isLeader }));
 
-            socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader });
+            socket.emit('joinRoom', { roomId: currentRoomId, playerName: name, team: playerData.team, isLeader });
         }
 
         socket.on('leaderSlotTaken', ({ message }) => {
@@ -669,7 +673,7 @@
                     const session = JSON.parse(savedSession);
                     if (session.name && session.room) {
                         playerData.name = session.name;
-                        roomId = session.room;
+                        currentRoomId = session.room;
                         playerData.team = session.team || 'blue';
                         playerData.isLeader = !!session.isLeader;
 
@@ -692,49 +696,37 @@
         });
 
         function submitClue() {
-            if (!currentGameState) return;
-            const activeRoomId = roomId || document.getElementById('room-id-input').value.trim();
-
-            if (!playerData.isLeader || playerData.team !== currentGameState.currentTurn) {
-                alert('عذراً، ليس دور فريقك أو لست القائد!');
-                return;
-            }
-
+            const room = getActiveRoomId();
             const word = document.getElementById('leader-clue-word').value.trim();
             const count = document.getElementById('leader-clue-count').value;
-            if (!word) { alert('اكتب كلمة التلميح أولاً!'); return; }
+            
+            if (!word) { 
+                alert('اكتب كلمة التلميح أولاً!'); 
+                return; 
+            }
 
-            socket.emit('submitClue', { roomId: activeRoomId, word, count });
+            socket.emit('submitClue', { roomId: room, word, count });
             document.getElementById('leader-clue-word').value = '';
         }
 
         function endTurn() {
-            if (!currentGameState) return;
-            const activeRoomId = roomId || document.getElementById('room-id-input').value.trim();
-            if (playerData.team !== currentGameState.currentTurn) return;
-
-            socket.emit('endTurn', { roomId: activeRoomId });
+            const room = getActiveRoomId();
+            socket.emit('endTurn', { roomId: room });
         }
 
         function clickCard(index) {
             if (!currentGameState) return;
-            const activeRoomId = roomId || document.getElementById('room-id-input').value.trim();
+            const room = getActiveRoomId();
+
             if (playerData.isLeader) return; 
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
-            if (playerData.team !== currentGameState.currentTurn) {
-                alert('ليس دور فريقك الآن!');
-                return;
-            }
 
-            socket.emit('toggleSelectCard', { roomId: activeRoomId, index });
+            socket.emit('toggleSelectCard', { roomId: room, index });
         }
 
         function confirmSelection() {
-            if (!currentGameState) return;
-            const activeRoomId = roomId || document.getElementById('room-id-input').value.trim();
-            if (playerData.isLeader || playerData.team !== currentGameState.currentTurn) return;
-
-            socket.emit('confirmSelection', { roomId: activeRoomId });
+            const room = getActiveRoomId();
+            socket.emit('confirmSelection', { roomId: room });
         }
 
         function updatePlayersList(players) {
