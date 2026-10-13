@@ -5,13 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Mohzak">
     <meta name="copyright" content="Copyright © 2026 Mohzak. All rights reserved.">
-    
-    <!-- SEO & AdSense -->
-    <meta name="keywords" content="شيفرة اونلاين, لعبة شيفره, لعبة شيفره اونلاين, لعبة الشفرات, ألعاب جماعية اونلاين, لعبة كودenames بالعربي, codenames arabic, hidden codes game, online party game">
-    <meta name="description" content="لعبة جماعية تفاعلية ممتعة تعتمد على الذكاء وتخمين الكلمات والربط بينها. العبها مباشرة أونلاين بدون تنزيل.">
-
     <meta name="google-site-verification" content="zFY9i9pAuV6d5rdM7Q2ere71WBEhgnsXfCnXPh9ngiQ" />
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9297059128747721" crossorigin="anonymous"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9297059128747721"
+     crossorigin="anonymous"></script>
     <title>شيفرة - لعبة الشفرات الخفية أونلاين</title>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <script src="/socket.io/socket.io.js"></script>
@@ -47,10 +43,15 @@
         }
 
         body::before {
-            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px),
-                        linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px);
-            background-size: 40px 40px; pointer-events: none; z-index: 0;
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         .main-container { width: 100%; max-width: 1150px; z-index: 2; display: flex; flex-direction: column; align-items: center; }
@@ -75,13 +76,16 @@
             border-radius: 10px; color: #fff; font-size: 1.05rem; text-align: center; outline: none; margin-bottom: 12px;
             transition: all 0.3s;
         }
-        .input-cyber:focus { border-color: var(--accent-cyan); box-shadow: 0 0 18px rgba(0, 240, 255, 0.5); }
+        .input-cyber:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.2);
+        }
 
         .room-row { display: flex; gap: 8px; margin-bottom: 12px; }
         .room-row .input-cyber { margin-bottom: 0; flex: 1; }
         .btn-create-room {
             background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
-            padding: 0 14px; border-radius: 10px; font-weight: bold; cursor: pointer; transition: all 0.2s;
+            padding: 0 14px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: all 0.2s;
         }
         .btn-create-room:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 15px rgba(0,240,255,0.5); }
 
@@ -91,24 +95,44 @@
         }
         .room-created-box .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
         .room-created-box span { color: var(--accent-cyan); font-family: monospace; font-weight: bold; }
-
-        .copy-wrapper { display: flex; align-items: center; gap: 10px; }
+        
+        .copy-wrapper { display: flex; align-items: center; gap: 10px; position: relative; }
         .btn-copy-link {
             flex: 1; background: var(--accent-cyan); color: #000; border: none; padding: 8px; border-radius: 6px;
             font-weight: bold; cursor: pointer; text-align: center; font-size: 0.9rem; transition: 0.2s;
         }
+        .btn-copy-link:hover { box-shadow: 0 0 15px rgba(0, 240, 255, 0.7); }
+        
         .copy-toast {
-            font-size: 0.8rem; color: #00ffcc; background: rgba(0, 255, 204, 0.1); border: 1px solid rgba(0, 255, 204, 0.3);
-            padding: 4px 8px; border-radius: 6px; display: none; white-space: nowrap;
+            font-size: 0.8rem;
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: none;
+            white-space: nowrap;
         }
 
-        .toast-notification, .leader-error-toast {
-            display: none; background: rgba(255, 0, 85, 0.15); border: 1px solid var(--accent-magenta);
-            color: #ff4d7d; padding: 10px 14px; border-radius: 10px; font-size: 0.9rem; font-weight: bold;
-            margin-bottom: 12px; text-align: center; animation: fadeIn 0.3s ease-in-out;
+        .leader-error-toast {
+            display: none;
+            background: rgba(255, 0, 85, 0.15);
+            border: 1px solid var(--accent-magenta);
+            color: #ff4d7d;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: bold;
+            margin-bottom: 12px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+            animation: fadeIn 0.3s ease-in-out;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .team-select-group { display: flex; gap: 12px; margin-bottom: 15px; }
         .btn-team-cyber { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 2px solid transparent; color: #fff; }
@@ -122,11 +146,23 @@
         .btn-launch {
             width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff, #00f0ff); border: none;
             border-radius: 10px; color: #000; font-size: 1.15rem; font-weight: 900; cursor: pointer;
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5); transition: transform 0.2s;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-launch:hover { transform: translateY(-2px); }
+        .btn-launch:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
 
-        .btn-guide { background: transparent; border: none; color: #8a99ad; font-size: 0.9rem; font-weight: bold; cursor: pointer; margin-top: 14px; text-decoration: underline; }
+        .btn-guide {
+            background: transparent;
+            border: none;
+            color: #8a99ad;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 14px;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .btn-guide:hover { color: var(--accent-cyan); }
 
         .guide-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -135,36 +171,69 @@
         }
         .guide-content {
             background: #0d1220; border: 2px solid var(--accent-cyan); border-radius: 20px;
-            padding: 25px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto; color: #e2e8f0; text-align: right;
+            padding: 25px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto;
+            color: #e2e8f0; text-align: right; box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
         }
-        .btn-close-guide { background: var(--accent-magenta); color: #fff; border: none; padding: 10px 25px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%; }
+        .guide-content h3 { color: var(--accent-cyan); font-size: 1.6rem; margin-bottom: 15px; text-align: center; }
+        .guide-content h4 { color: var(--accent-gold); margin-top: 15px; margin-bottom: 5px; }
+        .guide-content ul { padding-right: 20px; line-height: 1.6; font-size: 0.95rem; }
+        .btn-close-guide {
+            background: var(--accent-magenta); color: #fff; border: none; padding: 10px 25px;
+            font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%;
+        }
 
-        /* الشاشات الكبيرة للنهاية */
         .scary-loss-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000; display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            text-align: center; padding: 20px; animation: scaryPulse 0.8s infinite alternate;
+            text-align: center; padding: 20px;
+            animation: scaryPulse 0.8s infinite alternate;
         }
-        @keyframes scaryPulse { 0% { box-shadow: inset 0 0 50px #ff0033; } 100% { box-shadow: inset 0 0 150px #880000; } }
-        .scary-skull { font-size: 6rem; margin-bottom: 20px; animation: skullShake 0.15s infinite; }
-        @keyframes skullShake { 0% { transform: rotate(0deg); } 50% { transform: rotate(-2deg); } 100% { transform: rotate(2deg); } }
+        @keyframes scaryPulse {
+            0% { box-shadow: inset 0 0 50px #ff0033; }
+            100% { box-shadow: inset 0 0 150px #880000; }
+        }
+        .scary-skull { font-size: 6rem; margin-bottom: 20px; text-shadow: 0 0 30px #ff0055; animation: skullShake 0.15s infinite; }
+        @keyframes skullShake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            50% { transform: translate(-2px, -2px) rotate(-1deg); }
+            100% { transform: translate(2px, 0px) rotate(1deg); }
+        }
         .scary-title { color: #ff0055; font-size: 3.2rem; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 25px #ff0055; }
         .scary-subtitle { color: #aaa; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
-        .btn-close-scary { background: linear-gradient(90deg, #ff0055, #880022); color: #fff; border: none; padding: 12px 35px; font-size: 1.1rem; font-weight: 900; border-radius: 10px; cursor: pointer; }
+        .btn-close-scary {
+            background: linear-gradient(90deg, #ff0055, #880022); color: #fff;
+            border: none; padding: 12px 35px; font-size: 1.1rem; font-weight: 900;
+            border-radius: 10px; cursor: pointer; box-shadow: 0 0 25px rgba(255, 0, 85, 0.6);
+            transition: transform 0.2s;
+        }
+        .btn-close-scary:hover { transform: scale(1.05); }
 
         .scary-win-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(3, 6, 15, 0.95); display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            text-align: center; padding: 20px; animation: winPulse 1s infinite alternate;
+            text-align: center; padding: 20px;
+            animation: winPulse 1s infinite alternate;
         }
-        @keyframes winPulse { 0% { box-shadow: inset 0 0 50px rgba(0, 240, 255, 0.4); } 100% { box-shadow: inset 0 0 150px rgba(0, 240, 255, 0.8); } }
-        .win-trophy { font-size: 6rem; margin-bottom: 20px; animation: trophyBounce 0.6s infinite alternate; }
-        @keyframes trophyBounce { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
+        @keyframes winPulse {
+            0% { box-shadow: inset 0 0 50px rgba(0, 240, 255, 0.4); }
+            100% { box-shadow: inset 0 0 150px rgba(0, 240, 255, 0.8); }
+        }
+        .win-trophy { font-size: 6rem; margin-bottom: 20px; text-shadow: 0 0 30px var(--accent-gold); animation: trophyBounce 0.6s infinite alternate; }
+        @keyframes trophyBounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-15px); }
+        }
         .win-title { color: var(--accent-cyan); font-size: 3.2rem; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 25px var(--accent-cyan); }
         .win-subtitle { color: #e2e8f0; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
-        .btn-close-win { background: linear-gradient(90deg, #00d2ff, #00f0ff); color: #000; border: none; padding: 12px 35px; font-size: 1.1rem; font-weight: 900; border-radius: 10px; cursor: pointer; }
+        .btn-close-win {
+            background: linear-gradient(90deg, #00d2ff, #00f0ff); color: #000;
+            border: none; padding: 12px 35px; font-size: 1.1rem; font-weight: 900;
+            border-radius: 10px; cursor: pointer; box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+            transition: transform 0.2s;
+        }
+        .btn-close-win:hover { transform: scale(1.05); }
 
         .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
         .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
@@ -172,10 +241,36 @@
         .team-box.team-red { border-color: rgba(255, 42, 109, 0.4); }
         .team-box.active-turn { box-shadow: 0 0 30px currentColor; }
 
-        .team-members-container { margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255, 255, 255, 0.15); font-size: 0.85rem; text-align: right; }
-        .leader-section { background: rgba(255, 204, 0, 0.1); border: 1px solid var(--accent-gold); padding: 6px 10px; border-radius: 8px; color: var(--accent-gold); font-weight: bold; margin-bottom: 8px; display: flex; justify-content: space-between; }
-        .players-list-section { display: flex; flex-direction: column; gap: 4px; }
-        .player-badge { background: rgba(255, 255, 255, 0.05); padding: 4px 8px; border-radius: 6px; color: var(--text-main); }
+        .team-members-container {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .leader-section {
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid var(--accent-gold);
+            padding: 6px 10px;
+            border-radius: 8px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .players-list-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .player-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: var(--text-main);
+        }
 
         .game-status-bar {
             width: 100%; background: var(--card-bg); border: 1px solid rgba(0, 240, 255, 0.25);
@@ -184,29 +279,39 @@
 
         .timer-container { display: flex; flex-direction: column; align-items: center; background: rgba(4, 6, 12, 0.8); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 12px; padding: 6px 20px; min-width: 150px; }
         .timer-display { font-size: 1.4rem; font-weight: 900; color: var(--accent-cyan); font-family: monospace; }
+        .timer-progress-bar { width: 100%; height: 5px; background: #151d2a; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .timer-progress-fill { height: 100%; background: var(--accent-cyan); width: 100%; transition: width 1s linear; }
 
         .leader-control-panel {
             width: 100%; background: linear-gradient(135deg, rgba(255, 204, 0, 0.08) 0%, rgba(20, 16, 5, 0.8) 100%);
             border: 2px dashed var(--accent-gold); border-radius: 16px; padding: 16px 22px; margin-bottom: 18px; display: none; align-items: center; gap: 15px; flex-wrap: wrap;
         }
 
-        .game-actions-bar { display: flex; gap: 12px; margin-bottom: 15px; justify-content: center; flex-wrap: wrap; }
-        .btn-action-confirm { background: #00ffcc; color: #000; border: none; padding: 10px 24px; font-weight: 900; border-radius: 8px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 15px rgba(0,255,204,0.4); }
-        .btn-action-confirm:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(0,255,204,0.7); }
+        .game-actions-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
 
-        .btn-action-end { background: var(--accent-magenta); color: #fff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
-        .btn-action-exit { background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.25); padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn-action-end {
+            background: var(--accent-magenta); color: #fff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action-end:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-action-exit {
+            background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.25); padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action-exit:hover { background: rgba(255, 0, 85, 0.2); border-color: var(--accent-magenta); color: #fff; transform: translateY(-2px); }
 
         .grid-container { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; width: 100%; margin-bottom: 25px; }
         .card {
-            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; height: 75px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center; padding: 4px;
-            transition: all 0.25s; position: relative;
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; height: 70px;
+            display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center; padding: 6px;
+            transition: all 0.25s;
         }
-        .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px); }
-
-        .card.selected-card { border: 2px solid var(--accent-gold) !important; background: rgba(255, 204, 0, 0.15) !important; box-shadow: 0 0 15px rgba(255, 204, 0, 0.4); }
-        .vote-tag { font-size: 0.7rem; color: var(--accent-gold); background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 4px; margin-top: 3px; max-width: 90%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px) scale(1.02); }
 
         .card.revealed-blue { background: linear-gradient(135deg, #00d2ff, #0088cc) !important; color: #000 !important; font-weight: 900; }
         .card.revealed-red { background: linear-gradient(135deg, #ff2a6d, #b8003f) !important; color: #fff !important; font-weight: 900; }
@@ -214,31 +319,31 @@
         .card.revealed-black { background: #000 !important; color: #ff0055 !important; border: 2px solid #ff0055 !important; font-weight: 900; }
         .card.leader-view-black { background: #090204 !important; color: #ff0055 !important; border: 2px solid #ff0055 !important; }
 
-        .copyright-footer { margin-top: auto; padding: 15px; text-align: center; font-size: 0.85rem; color: #64748b; border-top: 1px solid rgba(0, 240, 255, 0.1); width: 100%; max-width: 1150px; }
+        .copyright-footer {
+            margin-top: auto; padding: 15px; text-align: center; font-size: 0.85rem; color: #64748b;
+            border-top: 1px solid rgba(0, 240, 255, 0.1); width: 100%; max-width: 1150px;
+        }
         .copyright-footer strong { color: var(--accent-cyan); }
 
-        @media (max-width: 900px) { .grid-container { grid-template-columns: repeat(4, 1fr); } .card { height: 60px; font-size: 0.85rem; } }
+        @media (max-width: 900px) { .grid-container { grid-template-columns: repeat(4, 1fr); } .card { height: 58px; font-size: 0.85rem; } }
     </style>
 </head>
 <body>
 
-    <!-- شاشة الخسارة بالفريق بالكامل -->
     <div class="scary-loss-overlay" id="scary-loss-overlay">
         <div class="scary-skull">💀</div>
-        <div class="scary-title" id="scary-title-text">لقد خسر فريقكم!</div>
-        <div class="scary-subtitle">تم اختيار الكلمة السوداء القاتلة! 💣</div>
+        <div class="scary-title" id="scary-title-text">لقد خسر فريقك!</div>
+        <div class="scary-subtitle">تم كشف الكلمة السوداء القاتلة! 💣</div>
         <button class="btn-close-scary" onclick="exitGame()">إغلاق وخروج 🚪</button>
     </div>
 
-    <!-- شاشة الفوز بالفريق بالكامل -->
     <div class="scary-win-overlay" id="scary-win-overlay">
         <div class="win-trophy">🏆</div>
-        <div class="win-title" id="win-title-text">لقد ربح فريقكم!</div>
-        <div class="win-subtitle" id="win-subtitle-text">تهانينا، لقد انتصر فريقكم بنجاح! ✨</div>
+        <div class="win-title" id="win-title-text">لقد ربحت!</div>
+        <div class="win-subtitle" id="win-subtitle-text">تهانينا، لقد كشف فريقك جميع الكلمات بنجاح! ✨</div>
         <button class="btn-close-win" onclick="exitGame()">إغلاق وخروج 🚪</button>
     </div>
 
-    <!-- شاشة الانضمام -->
     <div class="overlay" id="login-overlay">
         <div class="login-card">
             <h2>شيفرة</h2>
@@ -272,7 +377,6 @@
                 <label for="is-leader-check" style="cursor: pointer;">👑 أنا قائد الفريق (Spymaster)</label>
             </div>
 
-            <div id="toast-notification" class="toast-notification"></div>
             <div id="leader-error-toast" class="leader-error-toast"></div>
 
             <button class="btn-launch" onclick="enterGame()">الانضمام إلى الغرفة 🚀</button>
@@ -283,24 +387,28 @@
         </div>
     </div>
 
-    <!-- داليل اللعبة -->
     <div class="guide-modal" id="guide-modal">
         <div class="guide-content">
             <h3>📖 دليل لعبة شيفرة</h3>
             <p>لعبة شيفرة هي لعبة ذكاء وتخمين جماعية بين فريقين (الأزرق والأحمر).</p>
             
             <h4>🎯 الهدف من اللعبة:</h4>
-            <ul><li>كشف جميع الكلمات الخاصة بفريقك قبل الفريق المنافس.</li></ul>
+            <ul>
+                <li>كشف جميع الكلمات الخاصة بفريقك قبل الفريق المنافس.</li>
+            </ul>
 
             <h4>👑 دور القائد (Spymaster):</h4>
-            <ul><li>يعرف أماكن وألوان الكلمات الخاصة بفريقه والكلمة السوداء القاتلة.</li><li>يعطي تلميحاً (كلمة + رقم) ليشير إلى كلمات فريقه.</li></ul>
-
-            <h4>👥 دور الأعضاء والتصويت:</h4>
             <ul>
-                <li>النقر على الكلمة يضع اسمك عليها كتصويت.</li>
-                <li>يجب اضغط على زر <strong>"تأكيد الاختيار ✅"</strong> لكشف الكلمة المحسوبة.</li>
-                <li>إذا كانت صحيحة يستمر دوركم، وإن كانت خاطئة ينتهي الدور فوراً!</li>
-                <li><strong>تحذير 💀:</strong> إذا اختار فريقكم الكلمة السوداء، يخسر الفريق اللعبة كاملاً!</li>
+                <li>يعرف أماكن وألوان الكلمات الخاصة بفريقه والكلمة السوداء القاتلة.</li>
+                <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> (مثال: "بحر 2") ليشير إلى الكلمات التابعة لفريقه.</li>
+            </ul>
+
+            <h4>👥 دور أعضاء الفريق:</h4>
+            <ul>
+                <li>يحاولون تخمين الكلمات بناءً على تلميح القائد بالنقر على البطاقات.</li>
+                <li>إذا اختاروا بطاقة فريقهم، يستمر دورهم.</li>
+                <li>إذا اختاروا بطاقة محايدة أو بطاقة الفريق المنافس، ينتهي دورهم فوراً.</li>
+                <li><strong>تحذير 💀:</strong> إذا تم اختيار البطاقة السوداء، يخسر الفريق اللعبة فوراً!</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -348,6 +456,7 @@
             <div class="timer-container">
                 <span style="font-size: 0.75rem; color: #8a99ad;">⏰ وقت التفكير</span>
                 <div class="timer-display" id="timer-display">03:00</div>
+                <div class="timer-progress-bar"><div class="timer-progress-fill" id="timer-progress-fill"></div></div>
             </div>
 
             <div>
@@ -366,7 +475,6 @@
         </div>
 
         <div class="game-actions-bar">
-            <button id="btn-confirm-selection" class="btn-action-confirm" onclick="confirmSelection()">✅ تأكيد الاختيار</button>
             <button id="btn-end-turn" class="btn-action-end" onclick="endTurn()">⏭️ إنهاء الدور</button>
             <button class="btn-action-exit" onclick="exitGame()">🚪 الخروج من اللعبة</button>
         </div>
@@ -384,25 +492,15 @@
         let roomId = '';
         let playerData = { name: '', team: 'blue', isLeader: false };
         let currentGameState = null;
-        let selectedIndex = null;
         let copyTimeout = null;
         let leaderToastTimeout = null;
-        let toastTimeout = null;
-
-        function showToast(message) {
-            const toast = document.getElementById('toast-notification');
-            toast.innerText = message;
-            toast.style.display = 'block';
-
-            if (toastTimeout) clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
-        }
 
         function playScarySound() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
                 const ctx = new AudioContext();
+
                 const osc = ctx.createOscillator();
                 const gain = ctx.createGain();
 
@@ -415,8 +513,12 @@
 
                 osc.connect(gain);
                 gain.connect(ctx.destination);
-                osc.start(); osc.stop(ctx.currentTime + 2.5);
-            } catch (e) { console.error(e); }
+
+                osc.start();
+                osc.stop(ctx.currentTime + 2.5);
+            } catch (e) {
+                console.error('Audio Error', e);
+            }
         }
 
         function playWinSound() {
@@ -424,28 +526,43 @@
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
                 const ctx = new AudioContext();
+
                 const notes = [330, 392, 523, 659];
                 notes.forEach((freq, index) => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
+
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.15);
+
                     gain.gain.setValueAtTime(0.5, ctx.currentTime + index * 0.15);
                     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + index * 0.15 + 0.4);
-                    osc.connect(gain); gain.connect(ctx.destination);
+
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+
                     osc.start(ctx.currentTime + index * 0.15);
                     osc.stop(ctx.currentTime + index * 0.15 + 0.4);
                 });
-            } catch (e) { console.error(e); }
+            } catch (e) {
+                console.error('Win Audio Error', e);
+            }
         }
 
-        function openGuide() { document.getElementById('guide-modal').style.display = 'flex'; }
-        function closeGuide() { document.getElementById('guide-modal').style.display = 'none'; }
+        function openGuide() {
+            document.getElementById('guide-modal').style.display = 'flex';
+        }
+
+        function closeGuide() {
+            document.getElementById('guide-modal').style.display = 'none';
+        }
 
         function generateRoomCode() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let result = '';
-            for (let i = 0; i < 6; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+            for (let i = 0; i < 6; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
             return result;
         }
 
@@ -459,11 +576,18 @@
         function copyRoomLink() {
             const roomCode = document.getElementById('room-id-input').value;
             const fullLink = window.location.origin + window.location.pathname + '?room=' + roomCode;
+            
             navigator.clipboard.writeText(fullLink).then(() => {
                 const toast = document.getElementById('copy-toast');
                 toast.style.display = 'inline-block';
+
                 if (copyTimeout) clearTimeout(copyTimeout);
-                copyTimeout = setTimeout(() => { toast.style.display = 'none'; }, 3000);
+
+                copyTimeout = setTimeout(() => {
+                    toast.style.display = 'none';
+                }, 3000);
+            }).catch(err => {
+                console.error('فشل النسخ', err);
             });
         }
 
@@ -477,7 +601,11 @@
             const name = document.getElementById('player-name-input').value.trim();
             const room = document.getElementById('room-id-input').value.trim();
 
-            if (!name || !room) { showToast('ادخل اسمك ورمز الغرفة أولاً!'); return; }
+            if (!name || !room) { 
+                alert('ادخل اسمك ورمز الغرفة أولاً!'); 
+                return; 
+            }
+
             const isLeader = document.getElementById('is-leader-check').checked;
             
             playerData.name = name;
@@ -491,11 +619,15 @@
             const errorToast = document.getElementById('leader-error-toast');
             errorToast.innerText = message;
             errorToast.style.display = 'block';
+
             document.getElementById('login-overlay').style.display = 'flex';
             document.getElementById('is-leader-check').checked = false;
             sessionStorage.removeItem('shefra_session');
+
             if (leaderToastTimeout) clearTimeout(leaderToastTimeout);
-            leaderToastTimeout = setTimeout(() => { errorToast.style.display = 'none'; }, 5000);
+            leaderToastTimeout = setTimeout(() => {
+                errorToast.style.display = 'none';
+            }, 5000);
         });
 
         function exitGame() {
@@ -506,152 +638,180 @@
         window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const roomParam = urlParams.get('room');
-            if (roomParam) document.getElementById('room-id-input').value = roomParam;
-
-            const savedSession = sessionStorage.getItem('shefra_session');
-            if (savedSession) {
-                try {
-                    const data = JSON.parse(savedSession);
-                    if (data && data.roomId && data.playerName) {
-                        roomId = data.roomId; playerData = data;
-                        socket.emit('joinRoom', { roomId, playerName: data.playerName, team: data.team, isLeader: data.isLeader });
-                    }
-                } catch (e) { sessionStorage.removeItem('shefra_session'); }
+            if (roomParam) {
+                document.getElementById('room-id-input').value = roomParam;
             }
         });
 
         function submitClue() {
-            if (!currentGameState || playerData.team !== currentGameState.currentTurn) return;
+            if (!currentGameState) return;
+            if (playerData.team !== currentGameState.currentTurn) return;
+
             const word = document.getElementById('leader-clue-word').value.trim();
             const count = document.getElementById('leader-clue-count').value;
-            if (!word) { showToast('اكتب كلمة التلميح أولاً!'); return; }
+            if (!word) { alert('اكتب كلمة التلميح أولاً!'); return; }
 
             socket.emit('submitClue', { roomId, word, count });
             document.getElementById('leader-clue-word').value = '';
         }
 
         function endTurn() {
-            if (!currentGameState || playerData.team !== currentGameState.currentTurn) return;
+            if (!currentGameState) return;
+            if (playerData.team !== currentGameState.currentTurn) return;
+
             socket.emit('endTurn', { roomId });
         }
 
-        // تحديد الخيار للتصويت
-        function voteCard(index) {
-            if (!currentGameState || playerData.isLeader) return;
+        function revealCard(index) {
+            if (!currentGameState) return;
+
+            if (playerData.isLeader) return;
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
             if (playerData.team !== currentGameState.currentTurn) return;
 
-            selectedIndex = index;
-            socket.emit('voteCard', { roomId, index, playerName: playerData.name });
+            socket.emit('revealCard', { roomId, index });
         }
 
-        // تأكيد الاختيار برمجياً لكشف الكلمة
-        function confirmSelection() {
-            if (!currentGameState || playerData.isLeader) return;
-            if (playerData.team !== currentGameState.currentTurn) return;
-            if (selectedIndex === null) {
-                showToast('اختر كلمة بالضغط عليها أولاً قبل التأكيد!');
-                return;
+        function updatePlayersList(players) {
+            const bluePlayersList = document.getElementById('blue-players-list');
+            const redPlayersList = document.getElementById('red-players-list');
+            const blueLeaderName = document.getElementById('blue-leader-name');
+            const redLeaderName = document.getElementById('red-leader-name');
+
+            bluePlayersList.innerHTML = '';
+            redPlayersList.innerHTML = '';
+            blueLeaderName.innerText = 'غير محدد';
+            redLeaderName.innerText = 'غير محدد';
+
+            if (!players) return;
+
+            players.forEach(player => {
+                const pName = player.name || player.playerName;
+                if (!pName) return;
+
+                if (player.team === 'blue') {
+                    if (player.isLeader) {
+                        blueLeaderName.innerText = pName;
+                    } else {
+                        const p = document.createElement('div');
+                        p.className = 'player-badge';
+                        p.innerText = pName;
+                        bluePlayersList.appendChild(p);
+                    }
+                } else if (player.team === 'red') {
+                    if (player.isLeader) {
+                        redLeaderName.innerText = pName;
+                    } else {
+                        const p = document.createElement('div');
+                        p.className = 'player-badge';
+                        p.innerText = pName;
+                        redPlayersList.appendChild(p);
+                    }
+                }
+            });
+        }
+
+        socket.on('blackCardLoss', ({ losingTeam }) => {
+            playScarySound();
+            const lossOverlay = document.getElementById('scary-loss-overlay');
+            const lossTitle = document.getElementById('scary-title-text');
+
+            if (playerData.team === losingTeam) {
+                lossTitle.innerText = "💀 لقد خسر فريقك!";
+            } else {
+                lossTitle.innerText = "🎉 فاز فريقك! الفريق المنافس فتح البطاقة السوداء!";
             }
 
-            socket.emit('revealCard', { roomId, index: selectedIndex });
-            selectedIndex = null;
-        }
+            lossOverlay.style.display = 'flex';
+        });
 
-        socket.on('roomJoinedSuccess', () => {
-            document.getElementById('login-overlay').style.display = 'none';
-            sessionStorage.setItem('shefra_session', JSON.stringify(roomId ? { roomId, ...playerData } : playerData));
+        socket.on('gameWin', ({ winningTeam }) => {
+            playWinSound();
+            const winOverlay = document.getElementById('scary-win-overlay');
+            const winTitle = document.getElementById('win-title-text');
+            const winSubtitle = document.getElementById('win-subtitle-text');
+
+            if (playerData.team === winningTeam) {
+                winTitle.innerText = "🏆 لقد ربحت!";
+                winSubtitle.innerText = `تهانينا، لقد كشف فريقك (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) جميع الكلمات بنجاح! ✨`;
+            } else {
+                winTitle.innerText = "😔 لقد خسرت التحدي!";
+                winSubtitle.innerText = `الفريق المنافس (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) تمكن من كشف جميع كلماته أولاً!`;
+            }
+
+            winOverlay.style.display = 'flex';
         });
 
         socket.on('updateGameState', (gameState) => {
             currentGameState = gameState;
-            document.getElementById('login-overlay').style.display = 'none';
 
-            document.getElementById('score-blue').innerText = `${gameState.blueScore} / 16`;
-            document.getElementById('score-red').innerText = `${gameState.redScore} / 15`;
+            if (gameState.players && gameState.players.some(p => p.id === socket.id)) {
+                document.getElementById('login-overlay').style.display = 'none';
+                sessionStorage.setItem('shefra_session', JSON.stringify({ 
+                    name: playerData.name, 
+                    room: roomId, 
+                    team: playerData.team, 
+                    isLeader: playerData.isLeader 
+                }));
 
-            document.getElementById('blue-leader-name').innerText = gameState.blueLeader || 'غير محدد';
-            document.getElementById('red-leader-name').innerText = gameState.redLeader || 'غير محدد';
-
-            const blueList = document.getElementById('blue-players-list');
-            const redList = document.getElementById('red-players-list');
-            blueList.innerHTML = ''; redList.innerHTML = '';
-
-            (gameState.bluePlayers || []).forEach(p => {
-                const div = document.createElement('div'); div.className = 'player-badge'; div.innerText = p; blueList.appendChild(div);
-            });
-            (gameState.redPlayers || []).forEach(p => {
-                const div = document.createElement('div'); div.className = 'player-badge'; div.innerText = p; redList.appendChild(div);
-            });
-
-            const turnIndicator = document.getElementById('turn-indicator');
-            const boxBlue = document.getElementById('box-blue');
-            const boxRed = document.getElementById('box-red');
-
-            boxBlue.classList.remove('active-turn'); boxRed.classList.remove('active-turn');
-
-            if (gameState.currentTurn === 'blue') {
-                turnIndicator.innerText = '🔵 الفريق الأزرق'; turnIndicator.style.color = 'var(--team-blue)'; boxBlue.classList.add('active-turn');
-            } else {
-                turnIndicator.innerText = '🔴 الفريق الأحمر'; turnIndicator.style.color = 'var(--team-red)'; boxRed.classList.add('active-turn');
+                if (playerData.isLeader) {
+                    document.getElementById('leader-panel').style.display = 'flex';
+                    document.getElementById('btn-end-turn').style.display = 'none';
+                } else {
+                    document.getElementById('leader-panel').style.display = 'none';
+                    document.getElementById('btn-end-turn').style.display = 'inline-block';
+                }
             }
 
-            const clueStatus = document.getElementById('clue-status-text');
-            if (gameState.currentClue && gameState.currentClue.word) {
-                clueStatus.innerText = `${gameState.currentClue.word} (${gameState.currentClue.count})`;
-            } else { clueStatus.innerText = 'في انتظار التلميح...'; }
+            document.getElementById('score-blue').innerText = `${gameState.scoreBlue} / 16`;
+            document.getElementById('score-red').innerText = `${gameState.scoreRed} / 15`;
+            document.getElementById('clue-status-text').innerText = gameState.clue;
 
-            const leaderPanel = document.getElementById('leader-panel');
-            leaderPanel.style.display = (playerData.isLeader && playerData.team === gameState.currentTurn) ? 'flex' : 'none';
+            if (gameState.players) {
+                updatePlayersList(gameState.players);
+            }
+
+            const turnInd = document.getElementById('turn-indicator');
+            if (gameState.currentTurn === 'blue') {
+                turnInd.innerText = "🔵 الفريق الأزرق"; turnInd.style.color = "var(--team-blue)";
+                document.getElementById('box-blue').classList.add('active-turn'); document.getElementById('box-red').classList.remove('active-turn');
+            } else {
+                turnInd.innerText = "🔴 الفريق الأحمر"; turnInd.style.color = "var(--team-red)";
+                document.getElementById('box-red').classList.add('active-turn'); document.getElementById('box-blue').classList.remove('active-turn');
+            }
 
             const grid = document.getElementById('grid');
             grid.innerHTML = '';
 
-            gameState.cards.forEach((card, idx) => {
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'card';
+            gameState.cards.forEach((item, idx) => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerText = item.word;
 
-                if (card.revealed) {
-                    if (card.type === 'blue') cardDiv.classList.add('revealed-blue');
-                    else if (card.type === 'red') cardDiv.classList.add('revealed-red');
-                    else if (card.type === 'neutral') cardDiv.classList.add('revealed-neutral');
-                    else if (card.type === 'black') cardDiv.classList.add('revealed-black');
-                    cardDiv.innerText = card.word;
-                } else if (playerData.isLeader) {
-                    if (card.type === 'blue') cardDiv.style.border = '2px solid var(--team-blue)';
-                    else if (card.type === 'red') cardDiv.style.border = '2px solid var(--team-red)';
-                    else if (card.type === 'neutral') cardDiv.style.border = '1px dashed #64748b';
-                    if (card.type === 'black') {
-                        cardDiv.classList.add('leader-view-black');
-                        cardDiv.innerHTML = `💀 ${card.word}`;
-                    } else { cardDiv.innerText = card.word; }
-                } else {
-                    cardDiv.innerText = card.word;
-
-                    // عرض تصويت الأعضاء على الكلمة قبل كشفها
-                    if (card.votedBy) {
-                        cardDiv.classList.add('selected-card');
-                        const voteBadge = document.createElement('div');
-                        voteBadge.className = 'vote-tag';
-                        voteBadge.innerText = `🗳️ ${card.votedBy}`;
-                        cardDiv.appendChild(voteBadge);
+                if (playerData.isLeader && !item.revealed) {
+                    if (item.type === 'black') {
+                        card.classList.add('leader-view-black');
+                        card.innerText = item.word + " 💀";
+                    } else {
+                        card.style.borderBottom = `4px solid var(--team-${item.type === 'neutral' ? 'neutral' : item.type})`;
                     }
                 }
 
-                cardDiv.onclick = () => voteCard(idx);
-                grid.appendChild(cardDiv);
+                if (item.revealed) {
+                    card.classList.add(`revealed-${item.type}`);
+                    if (item.type === 'black') card.innerText = "💀 خـسـارة";
+                }
+
+                card.onclick = () => revealCard(idx);
+                grid.appendChild(card);
             });
         });
 
-        // ظهور الشاشات بالكامل حسب الفريق الرابح والخاسر
-        socket.on('gameOver', ({ losingTeam, winningTeam }) => {
-            if (playerData.team === losingTeam) {
-                playScarySound();
-                document.getElementById('scary-loss-overlay').style.display = 'flex';
-            } else if (playerData.team === winningTeam) {
-                playWinSound();
-                document.getElementById('scary-win-overlay').style.display = 'flex';
-            }
+        socket.on('timerUpdate', ({ timer }) => {
+            const minutes = Math.floor(timer / 60);
+            const seconds = timer % 60;
+            document.getElementById('timer-display').innerText = `${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            document.getElementById('timer-progress-fill').style.width = `${(timer / 180) * 100}%`;
         });
     </script>
 </body>
