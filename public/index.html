@@ -463,7 +463,7 @@
         </div>
 
         <div class="game-status-bar">
-            <!-- إخفاء خانة التلميح عند القائد وإظهارها فقط للأعضاء -->
+            <!-- إخفاء مربع التلميح تماماً عن القائد وإظهاره للأعضاء فقط -->
             <div id="clue-container-box">
                 <span style="color: #8a99ad;">التلميح: </span>
                 <span id="clue-status-text" style="font-weight: 900; color: var(--accent-gold);">في انتظار التلميح...</span>
@@ -817,13 +817,11 @@
                 document.getElementById('login-overlay').style.display = 'none';
 
                 if (playerData.isLeader) {
-                    // إخفاء لوحة التلميح للأعضاء وإظهار لوحة إرسال القائد
                     document.getElementById('clue-container-box').style.display = 'none';
                     document.getElementById('leader-panel').style.display = 'flex';
                     document.getElementById('btn-end-turn').style.display = 'none';
                     document.getElementById('btn-confirm-selection').style.display = 'none';
                 } else {
-                    // إظهار التلميح للأعضاء وإخفاء لوحة القائد
                     document.getElementById('clue-container-box').style.display = 'block';
                     document.getElementById('leader-panel').style.display = 'none';
                     document.getElementById('btn-end-turn').style.display = 'inline-block';
