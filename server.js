@@ -52,12 +52,25 @@ io.on('connection', (socket) => {
                 timer: 180,
                 timerInterval: null,
                 isTimerRunning: false,
-                players: []
+                players: {}
             };
         }
 
-        rooms[roomId].players.push({ id: socket.id, playerName, team, isLeader });
-        io.to(roomId).emit('updateGameState', rooms[roomId]);
+        // حفظ اللاعب باستخدام socket.id كمعرف فريد لتجنب التكرار وضمان ظهور الاسم والخاصية بدقة
+        rooms[roomId].players[socket.id] = {
+            id: socket.id,
+            name: playerName,
+            team: team,
+            isLeader: isLeader
+        };
+
+        // تحويل قائمة اللاعبين إلى مصفوفة وإرسالها مع حالة اللعبة
+        const roomData = {
+            ...rooms[roomId],
+            players: Object.values(rooms[roomId].players)
+        };
+
+        io.to(roomId).emit('updateGameState', roomData);
     });
 
     socket.on('submitClue', ({ roomId, word, count }) => {
@@ -78,11 +91,11 @@ io.on('connection', (socket) => {
                 room.isTimerRunning = false;
                 room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
                 room.clue = "في انتظار التلميح من القائد...";
-                io.to(roomId).emit('updateGameState', room);
+                io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
             }
         }, 1000);
 
-        io.to(roomId).emit('updateGameState', room);
+        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
     socket.on('revealCard', ({ roomId, index }) => {
@@ -102,7 +115,7 @@ io.on('connection', (socket) => {
             room.clue = "في انتظار التلميح من القائد...";
         }
 
-        io.to(roomId).emit('updateGameState', room);
+        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
     socket.on('endTurn', ({ roomId }) => {
@@ -113,7 +126,20 @@ io.on('connection', (socket) => {
         room.isTimerRunning = false;
         room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
         room.clue = "في انتظار التلميح من القائد...";
-        io.to(roomId).emit('updateGameState', room);
+        io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
+    });
+
+    // التعامل مع خروج اللاعب أو إغلاقه للصفحة لتحديث القائمة فوراً
+    socket.on('disconnect', () => {
+        for (const roomId in rooms) {
+            if (rooms[roomId].players[socket.id]) {
+                delete rooms[roomId].players[socket.id];
+                io.to(roomId).emit('updateGameState', {
+                    ...rooms[roomId],
+                    players: Object.values(rooms[roomId].players)
+                });
+            }
+        }
     });
 });
 
