@@ -425,7 +425,7 @@
             <h4>👥 دور أعضاء الفريق والنقاش:</h4>
             <ul>
                 <li>عند الضغط على الكلمة يظهر ظل واسم العضو للتصويت والترشيح فوراً عند الجميع.</li>
-                <li>عند انتهاء الدور أو الضغط على تأكيد، يتم التحديث في نفس اللحظة.</li>
+                <li>يتاح اختيار الأزرار والترشيح فقط للفريق صاحِب الدور الحالي.</li>
             </ul>
 
             <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
@@ -726,7 +726,8 @@
             if (!currentGameState) return;
             const room = getActiveRoomId();
 
-            if (playerData.isLeader) return; 
+            // منع القائد والأعضاء من غير الفريق صاحب الدور من الترشيح
+            if (playerData.isLeader || playerData.team !== currentGameState.currentTurn) return; 
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
 
             socket.emit('toggleSelectCard', { roomId: room, index });
@@ -813,16 +814,26 @@
             if (gameState.players && gameState.players.some(p => p.id === socket.id)) {
                 document.getElementById('login-overlay').style.display = 'none';
 
+                const isMyTurn = playerData.team === gameState.currentTurn;
+
                 if (playerData.isLeader) {
                     document.getElementById('clue-container-box').style.display = 'none';
                     document.getElementById('leader-panel').style.display = 'flex';
+                    // إخفاء زر التأكيد وزر إنهاء الدور عن القادة تماماً
                     document.getElementById('btn-end-turn').style.display = 'none';
                     document.getElementById('btn-confirm-selection').style.display = 'none';
                 } else {
                     document.getElementById('clue-container-box').style.display = 'block';
                     document.getElementById('leader-panel').style.display = 'none';
-                    document.getElementById('btn-end-turn').style.display = 'inline-block';
-                    document.getElementById('btn-confirm-selection').style.display = 'inline-block';
+                    
+                    // إظهار زر التأكيد وزر إنهاء الدور فقط لأعضاء الفريق صاحب الدور الحالي
+                    if (isMyTurn) {
+                        document.getElementById('btn-end-turn').style.display = 'inline-block';
+                        document.getElementById('btn-confirm-selection').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('btn-end-turn').style.display = 'none';
+                        document.getElementById('btn-confirm-selection').style.display = 'none';
+                    }
                 }
             }
 
