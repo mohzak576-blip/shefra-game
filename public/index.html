@@ -179,6 +179,7 @@
             font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%;
         }
 
+        /* شاشة الخسارة (دون تغيير) */
         .scary-loss-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000; display: none; flex-direction: column;
@@ -206,31 +207,66 @@
         }
         .btn-close-scary:hover { transform: scale(1.05); }
 
+        /* شاشة الفوز الجديدة الاحترافية */
         .scary-win-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(3, 6, 15, 0.95); display: none; flex-direction: column;
+            background: radial-gradient(circle at center, rgba(10, 30, 60, 0.98) 0%, rgba(3, 6, 15, 0.99) 100%);
+            display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            text-align: center; padding: 20px;
-            animation: winPulse 1s infinite alternate;
+            text-align: center; padding: 20px; overflow: hidden;
         }
-        @keyframes winPulse {
-            0% { box-shadow: inset 0 0 50px rgba(0, 240, 255, 0.4); }
-            100% { box-shadow: inset 0 0 150px rgba(0, 240, 255, 0.8); }
+
+        .win-card-content {
+            background: rgba(15, 23, 42, 0.85);
+            border: 2px solid var(--accent-gold);
+            border-radius: 28px;
+            padding: 40px 35px;
+            max-width: 550px; width: 90%;
+            box-shadow: 0 0 80px rgba(255, 204, 0, 0.35), inset 0 0 30px rgba(255, 204, 0, 0.15);
+            backdrop-filter: blur(15px);
+            position: relative;
+            z-index: 2;
+            animation: winCardPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .win-trophy { font-size: 6rem; margin-bottom: 20px; text-shadow: 0 0 30px var(--accent-gold); animation: trophyBounce 0.6s infinite alternate; }
-        @keyframes trophyBounce {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-15px); }
+
+        @keyframes winCardPop {
+            0% { transform: scale(0.6); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .win-title { color: var(--accent-cyan); font-size: 3.2rem; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 25px var(--accent-cyan); }
-        .win-subtitle { color: #e2e8f0; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
+
+        .win-illustration {
+            width: 130px; height: 130px;
+            margin: 0 auto 20px auto;
+            background: radial-gradient(circle, rgba(255,204,0,0.2) 0%, transparent 70%);
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; border: 3px solid var(--accent-gold);
+            box-shadow: 0 0 35px var(--accent-gold);
+            animation: trophyGlow 1.2s infinite alternate;
+        }
+
+        @keyframes trophyGlow {
+            0% { transform: scale(1); box-shadow: 0 0 25px var(--accent-gold); }
+            100% { transform: scale(1.08); box-shadow: 0 0 50px var(--accent-gold); }
+        }
+
+        .win-illustration svg { width: 75px; height: 75px; fill: var(--accent-gold); filter: drop-shadow(0 0 10px rgba(255,204,0,0.8)); }
+
+        .win-title {
+            background: linear-gradient(90deg, #ffcc00, #ffe680, #ffcc00);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 3rem; font-weight: 900; margin-bottom: 12px;
+            text-shadow: 0 0 30px rgba(255, 204, 0, 0.5);
+        }
+
+        .win-subtitle { color: #e2e8f0; font-size: 1.25rem; font-weight: 700; margin-bottom: 30px; line-height: 1.5; }
+
         .btn-close-win {
-            background: linear-gradient(90deg, #00d2ff, #00f0ff); color: #000;
-            border: none; padding: 12px 35px; font-size: 1.1rem; font-weight: 900;
-            border-radius: 10px; cursor: pointer; box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
-            transition: transform 0.2s;
+            background: linear-gradient(90deg, #ffcc00, #ff9900); color: #000;
+            border: none; padding: 14px 40px; font-size: 1.2rem; font-weight: 900;
+            border-radius: 12px; cursor: pointer; box-shadow: 0 0 30px rgba(255, 204, 0, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .btn-close-win:hover { transform: scale(1.05); }
+        .btn-close-win:hover { transform: scale(1.06); box-shadow: 0 0 45px rgba(255, 204, 0, 0.9); }
 
         .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
         .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
@@ -349,6 +385,7 @@
 </head>
 <body>
 
+    <!-- شاشة الخسارة (كما هي) -->
     <div class="scary-loss-overlay" id="scary-loss-overlay">
         <div class="scary-skull">💀</div>
         <div class="scary-title" id="scary-title-text">لقد خسر فريقك!</div>
@@ -356,11 +393,21 @@
         <button class="btn-close-scary" onclick="exitGame()">إغلاق وخروج 🚪</button>
     </div>
 
+    <!-- شاشة الفوز الجديدة والمميزة -->
     <div class="scary-win-overlay" id="scary-win-overlay">
-        <div class="win-trophy">🏆</div>
-        <div class="win-title" id="win-title-text">لقد ربحت!</div>
-        <div class="win-subtitle" id="win-subtitle-text">تهانينا، لقد كشف فريقك جميع الكلمات بنجاح! ✨</div>
-        <button class="btn-close-win" onclick="exitGame()">إغلاق وخروج 🚪</button>
+        <div class="win-card-content">
+            <div class="win-illustration">
+                <!-- أيقونة الكأس الذهبي البراق -->
+                <svg viewBox="0 0 24 24">
+                    <path d="M19,5h-2V3H7v2H5C3.9,5,3,5.9,3,7v1c0,2.55,1.92,4.63,4.39,4.94c0.63,1.5,1.98,2.63,3.61,2.96V19H7v2h10v-2h-4v-3.1
+                    c1.63-0.33,2.98-1.46,3.61-2.96C19.08,12.63,21,10.55,21,8V7C21,5.9,20.1,5,19,5z M5,8V7h2v3.82C5.84,10.4,5,9.3,5,8z M19,8
+                    c0,1.3-0.84,2.4-2,2.82V7h2V8z"/>
+                </svg>
+            </div>
+            <div class="win-title" id="win-title-text">انتصار ساحق! 👑</div>
+            <div class="win-subtitle" id="win-subtitle-text">تهانينا، لقد كشف فريقك جميع الكلمات بنجاح واستطاع حسم المعركة!</div>
+            <button class="btn-close-win" onclick="exitGame()">خروج من اللعبة 🚀</button>
+        </div>
     </div>
 
     <div class="overlay" id="login-overlay">
@@ -545,28 +592,37 @@
             }
         }
 
+        /* الصوت الجديد المبهج والمناسب للفوز والنصر (Fanfare/Victory Tone) */
         function playWinSound() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 if (!AudioContext) return;
                 const ctx = new AudioContext();
 
-                const notes = [330, 392, 523, 659];
-                notes.forEach((freq, index) => {
+                // نغمات احتفالية متصاعدة (C5, E5, G5, C6)
+                const notes = [
+                    { freq: 523.25, time: 0.0, duration: 0.15 },
+                    { freq: 659.25, time: 0.15, duration: 0.15 },
+                    { freq: 783.99, time: 0.30, duration: 0.20 },
+                    { freq: 1046.50, time: 0.50, duration: 0.60 }
+                ];
+
+                notes.forEach(note => {
                     const osc = ctx.createOscillator();
                     const gain = ctx.createGain();
 
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, ctx.currentTime + index * 0.15);
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(note.freq, ctx.currentTime + note.time);
 
-                    gain.gain.setValueAtTime(0.5, ctx.currentTime + index * 0.15);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + index * 0.15 + 0.4);
+                    gain.gain.setValueAtTime(0, ctx.currentTime + note.time);
+                    gain.gain.linearRampToValueAtTime(0.4, ctx.currentTime + note.time + 0.05);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + note.time + note.duration);
 
                     osc.connect(gain);
                     gain.connect(ctx.destination);
 
-                    osc.start(ctx.currentTime + index * 0.15);
-                    osc.stop(ctx.currentTime + index * 0.15 + 0.4);
+                    osc.start(ctx.currentTime + note.time);
+                    osc.stop(ctx.currentTime + note.time + note.duration);
                 });
             } catch (e) {
                 console.error('Win Audio Error', e);
@@ -726,7 +782,6 @@
             if (!currentGameState) return;
             const room = getActiveRoomId();
 
-            // منع القائد والأعضاء من غير الفريق صاحب الدور من الترشيح
             if (playerData.isLeader || playerData.team !== currentGameState.currentTurn) return; 
             if (currentGameState.cards[index] && currentGameState.cards[index].revealed) return;
 
@@ -798,11 +853,11 @@
             const winSubtitle = document.getElementById('win-subtitle-text');
 
             if (playerData.team === winningTeam) {
-                winTitle.innerText = "🏆 لقد ربحت!";
-                winSubtitle.innerText = `تهانينا، لقد كشف فريقك (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) جميع الكلمات بنجاح! ✨`;
+                winTitle.innerText = "انتصار ساحق! 👑";
+                winSubtitle.innerText = `مبارك للفريق (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'})! لقد أظهرتم ذكاءً ورائعاً وتم كشف جميع الكلمات! ✨`;
             } else {
-                winTitle.innerText = "😔 لقد خسرت التحدي!";
-                winSubtitle.innerText = `الفريق المنافس (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) تمكن من كشف جميع كلماته أولاً!`;
+                winTitle.innerText = "انتهت المعركة 🏁";
+                winSubtitle.innerText = `تمكن الفريق المنافس (${winningTeam === 'blue' ? 'الأزرق' : 'الأحمر'}) من كشف كافة كلماته أولاً وحسم اللقب!`;
             }
 
             winOverlay.style.display = 'flex';
@@ -819,14 +874,12 @@
                 if (playerData.isLeader) {
                     document.getElementById('clue-container-box').style.display = 'none';
                     document.getElementById('leader-panel').style.display = 'flex';
-                    // إخفاء زر التأكيد وزر إنهاء الدور عن القادة تماماً
                     document.getElementById('btn-end-turn').style.display = 'none';
                     document.getElementById('btn-confirm-selection').style.display = 'none';
                 } else {
                     document.getElementById('clue-container-box').style.display = 'block';
                     document.getElementById('leader-panel').style.display = 'none';
                     
-                    // إظهار زر التأكيد وزر إنهاء الدور فقط لأعضاء الفريق صاحب الدور الحالي
                     if (isMyTurn) {
                         document.getElementById('btn-end-turn').style.display = 'inline-block';
                         document.getElementById('btn-confirm-selection').style.display = 'inline-block';
