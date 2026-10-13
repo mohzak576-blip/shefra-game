@@ -528,20 +528,16 @@
             roomId = room;
             playerData.isLeader = isLeader;
 
-            sessionStorage.setItem('shefra_session', JSON.stringify({ name, room, team: playerData.team, isLeader }));
-
-            document.getElementById('login-overlay').style.display = 'none';
-
-            if (playerData.isLeader) {
-                document.getElementById('leader-panel').style.display = 'flex';
-                document.getElementById('btn-end-turn').style.display = 'none';
-            } else {
-                document.getElementById('leader-panel').style.display = 'none';
-                document.getElementById('btn-end-turn').style.display = 'inline-block';
-            }
-
-            socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader: playerData.isLeader });
+            socket.emit('joinRoom', { roomId, playerName: name, team: playerData.team, isLeader });
         }
+
+        // الاستماع لرفض دخول القائد إذا كان المقعد محجوزاً
+        socket.on('leaderSlotTaken', ({ message }) => {
+            alert(message);
+            document.getElementById('login-overlay').style.display = 'flex';
+            document.getElementById('is-leader-check').checked = false;
+            sessionStorage.removeItem('shefra_session');
+        });
 
         function exitGame() {
             sessionStorage.removeItem('shefra_session');
@@ -640,6 +636,25 @@
 
         socket.on('updateGameState', (gameState) => {
             currentGameState = gameState;
+
+            // التحقق من تواجد اللاعب في الغرفة وإخفاء نافذة الدخول وحفظ الجلسة
+            if (gameState.players && gameState.players.some(p => p.id === socket.id)) {
+                document.getElementById('login-overlay').style.display = 'none';
+                sessionStorage.setItem('shefra_session', JSON.stringify({ 
+                    name: playerData.name, 
+                    room: roomId, 
+                    team: playerData.team, 
+                    isLeader: playerData.isLeader 
+                }));
+
+                if (playerData.isLeader) {
+                    document.getElementById('leader-panel').style.display = 'flex';
+                    document.getElementById('btn-end-turn').style.display = 'none';
+                } else {
+                    document.getElementById('leader-panel').style.display = 'none';
+                    document.getElementById('btn-end-turn').style.display = 'inline-block';
+                }
+            }
 
             document.getElementById('score-blue').innerText = `${gameState.scoreBlue} / 16`;
             document.getElementById('score-red').innerText = `${gameState.scoreRed} / 15`;
