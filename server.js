@@ -113,12 +113,15 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // ترشيح الكلمة للمناقشة فقط بدون كشفها
     socket.on('toggleSelectCard', ({ index, roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
         const player = room.players[socket.id];
-        if (!player || player.isLeader || room.cards[index].revealed) return;
+        
+        // السماح فقط للأعضاء (ليس القادة) وفي دور فريقهم بالترشيح
+        if (!player || player.isLeader || player.team !== room.currentTurn || room.cards[index].revealed) return;
 
         if (room.cards[index].selectedBy === player.name) {
             room.cards[index].selectedBy = null;
@@ -129,10 +132,14 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // تأكيد الكلمات المرشحة وكشفها
     socket.on('confirmSelection', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
+
+        const player = room.players[socket.id];
+        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         const selectedIndices = room.cards
             .map((card, idx) => ({ card, idx }))
@@ -183,10 +190,14 @@ io.on('connection', (socket) => {
         io.to(targetRoomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // إنهاء الدور فوراً ونقله للفريق الآخر
     socket.on('endTurn', ({ roomId }) => {
         const targetRoomId = roomId || socket.roomId;
         const room = rooms[targetRoomId];
         if (!room) return;
+
+        const player = room.players[socket.id];
+        if (!player || player.isLeader || player.team !== room.currentTurn) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
