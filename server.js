@@ -40,8 +40,6 @@ function generateGrid() {
 
 io.on('connection', (socket) => {
     socket.on('joinRoom', ({ roomId, playerName, team, isLeader }) => {
-        socket.join(roomId);
-
         if (!rooms[roomId]) {
             rooms[roomId] = {
                 cards: generateGrid(),
@@ -57,7 +55,24 @@ io.on('connection', (socket) => {
             };
         }
 
-        rooms[roomId].players[socket.id] = {
+        const room = rooms[roomId];
+
+        // التحقق مما إذا كان الفريق يحتوي على قائد مسبقاً
+        if (isLeader) {
+            const existingLeader = Object.values(room.players).find(
+                p => p.team === team && p.isLeader && p.id !== socket.id
+            );
+            if (existingLeader) {
+                socket.emit('leaderSlotTaken', { 
+                    message: `عذراً، مقعد القائد لـ ${team === 'blue' ? 'الفريق الأزرق' : 'الفريق الأحمر'} محجوز بالفعل! يجب أن ينتظر القائد الحالي حتى يغادر.` 
+                });
+                return;
+            }
+        }
+
+        socket.join(roomId);
+
+        room.players[socket.id] = {
             id: socket.id,
             name: playerName,
             team: team,
@@ -65,8 +80,8 @@ io.on('connection', (socket) => {
         };
 
         const roomData = {
-            ...rooms[roomId],
-            players: Object.values(rooms[roomId].players)
+            ...room,
+            players: Object.values(room.players)
         };
 
         io.to(roomId).emit('updateGameState', roomData);
