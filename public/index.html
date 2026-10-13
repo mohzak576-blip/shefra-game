@@ -427,6 +427,432 @@
 
         <div class="game-actions-bar">
             <button id="btn-end-turn" class="btn-action-end" onclick="endTurn()">⏭️ إنهاء الدور</button>
+            <button class="btn-action-exit" onclick="exitGame()">إليك ملف `index.html` كاملاً بعد إصلاح الخطأ وإضافة ميزة شاشة الخسارة السوداء مع الصوت المرعب:
+
+```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Mohzak">
+    <meta name="copyright" content="Copyright © 2026 Mohzak. All rights reserved.">
+    <meta name="google-site-verification" content="zFY9i9pAuV6d5rdM7Q2ere71WBEhgnsXfCnXPh9ngiQ" />
+    <script async src="[https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9297059128747721](https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9297059128747721)"
+     crossorigin="anonymous"></script>
+    <title>شيفرة - لعبة الشفرات الخفية أونلاين</title>
+    <link href="[https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap)" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        :root {
+            --bg-color: #03060f;
+            --card-bg: rgba(13, 18, 32, 0.75);
+            --accent-cyan: #00f0ff;
+            --accent-magenta: #ff0055;
+            --accent-gold: #ffcc00;
+            --text-main: #e2e8f0;
+            --team-blue: #00d2ff;
+            --team-red: #ff2a6d;
+            --neutral-card: #283344;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Tajawal', sans-serif; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            background-image: 
+                radial-gradient(circle at 50% 5%, rgba(0, 240, 255, 0.12) 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(255, 0, 85, 0.08) 0%, transparent 40%),
+                linear-gradient(rgba(3, 6, 15, 0.88), rgba(3, 6, 15, 0.88));
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                linear-gradient(90deg, rgba(0,240,255,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(0,240,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .main-container { width: 100%; max-width: 1150px; z-index: 2; display: flex; flex-direction: column; align-items: center; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 4, 10, 0.96); backdrop-filter: blur(15px);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 300;
+        }
+
+        .login-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(8, 12, 22, 0.95) 100%);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 24px; padding: 35px 30px; width: 100%; max-width: 500px; text-align: center;
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+        }
+
+        .login-card h2 { font-size: 2.8rem; font-weight: 900; color: #fff; margin-bottom: 6px; text-shadow: 0 0 20px rgba(0, 240, 255, 0.7); }
+
+        .input-cyber {
+            width: 100%; padding: 13px; background: #04060b; border: 1px solid rgba(0, 240, 255, 0.35);
+            border-radius: 10px; color: #fff; font-size: 1.05rem; text-align: center; outline: none; margin-bottom: 12px;
+            transition: all 0.3s;
+        }
+        .input-cyber:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 18px rgba(0, 240, 255, 0.5), inset 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .room-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .room-row .input-cyber { margin-bottom: 0; flex: 1; }
+        .btn-create-room {
+            background: rgba(0, 240, 255, 0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan);
+            padding: 0 14px; border-radius: 10px; font-weight: bold; cursor: pointer; white-space: nowrap; transition: all 0.2s;
+        }
+        .btn-create-room:hover { background: var(--accent-cyan); color: #000; box-shadow: 0 0 15px rgba(0,240,255,0.5); }
+
+        .room-created-box {
+            background: rgba(0, 240, 255, 0.05); border: 1px dashed var(--accent-cyan); border-radius: 10px;
+            padding: 12px; margin-bottom: 12px; display: none; flex-direction: column; gap: 8px; text-align: right;
+        }
+        .room-created-box .info-row { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+        .room-created-box span { color: var(--accent-cyan); font-family: monospace; font-weight: bold; }
+        
+        .copy-wrapper { display: flex; align-items: center; gap: 10px; position: relative; }
+        .btn-copy-link {
+            flex: 1; background: var(--accent-cyan); color: #000; border: none; padding: 8px; border-radius: 6px;
+            font-weight: bold; cursor: pointer; text-align: center; font-size: 0.9rem; transition: 0.2s;
+        }
+        .btn-copy-link:hover { box-shadow: 0 0 15px rgba(0, 240, 255, 0.7); }
+        
+        .copy-toast {
+            font-size: 0.8rem;
+            color: #00ffcc;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 4px 8px;
+            border-radius: 6px;
+            display: none;
+            white-space: nowrap;
+        }
+
+        .team-select-group { display: flex; gap: 12px; margin-bottom: 15px; }
+        .btn-team-cyber { flex: 1; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; border: 2px solid transparent; color: #fff; }
+        .btn-team-cyber.blue { background: rgba(0, 210, 255, 0.1); border-color: var(--team-blue); color: var(--team-blue); }
+        .btn-team-cyber.red { background: rgba(255, 42, 109, 0.1); border-color: var(--team-red); color: var(--team-red); }
+        .btn-team-cyber.blue.active { background: var(--team-blue); color: #000; font-weight: 900; box-shadow: 0 0 20px var(--team-blue); }
+        .btn-team-cyber.red.active { background: var(--team-red); color: #fff; font-weight: 900; box-shadow: 0 0 20px var(--team-red); }
+
+        .leader-checkbox-container { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 18px; color: var(--accent-gold); font-weight: bold; }
+
+        .btn-launch {
+            width: 100%; padding: 14px; background: linear-gradient(90deg, #00d2ff, #00f0ff); border: none;
+            border-radius: 10px; color: #000; font-size: 1.15rem; font-weight: 900; cursor: pointer;
+            box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-launch:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
+
+        .btn-guide {
+            background: transparent;
+            border: none;
+            color: #8a99ad;
+            font-size: 0.9rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 14px;
+            text-decoration: underline;
+            transition: color 0.2s;
+        }
+        .btn-guide:hover { color: var(--accent-cyan); }
+
+        .guide-modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(10px);
+            display: none; justify-content: center; align-items: center; z-index: 400; padding: 20px;
+        }
+        .guide-content {
+            background: #0d1220; border: 2px solid var(--accent-cyan); border-radius: 20px;
+            padding: 25px; max-width: 600px; width: 100%; max-height: 85vh; overflow-y: auto;
+            color: #e2e8f0; text-align: right; box-shadow: 0 0 40px rgba(0, 240, 255, 0.3);
+        }
+        .guide-content h3 { color: var(--accent-cyan); font-size: 1.6rem; margin-bottom: 15px; text-align: center; }
+        .guide-content h4 { color: var(--accent-gold); margin-top: 15px; margin-bottom: 5px; }
+        .guide-content ul { padding-right: 20px; line-height: 1.6; font-size: 0.95rem; }
+        .btn-close-guide {
+            background: var(--accent-magenta); color: #fff; border: none; padding: 10px 25px;
+            font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 20px; width: 100%;
+        }
+
+        .scary-loss-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
+            text-align: center; padding: 20px;
+            animation: scaryPulse 0.8s infinite alternate;
+        }
+        @keyframes scaryPulse {
+            0% { box-shadow: inset 0 0 50px #ff0033; }
+            100% { box-shadow: inset 0 0 150px #880000; }
+        }
+        .scary-skull { font-size: 6rem; margin-bottom: 20px; text-shadow: 0 0 30px #ff0055; animation: skullShake 0.15s infinite; }
+        @keyframes skullShake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            50% { transform: translate(-2px, -2px) rotate(-1deg); }
+            100% { transform: translate(2px, 0px) rotate(1deg); }
+        }
+        .scary-title { color: #ff0055; font-size: 3.2rem; font-weight: 900; margin-bottom: 15px; text-shadow: 0 0 25px #ff0055; }
+        .scary-subtitle { color: #aaa; font-size: 1.4rem; font-weight: bold; margin-bottom: 30px; }
+        .btn-close-scary {
+            background: linear-gradient(90deg, #ff0055, #880022); color: #fff;
+            border: none; padding: 12px 35px; font-size: 1.1rem; font-weight: 900;
+            border-radius: 10px; cursor: pointer; box-shadow: 0 0 25px rgba(255, 0, 85, 0.6);
+            transition: transform 0.2s;
+        }
+        .btn-close-scary:hover { transform: scale(1.05); }
+
+        .scoreboard { display: flex; justify-content: space-between; width: 100%; margin-bottom: 15px; gap: 15px; }
+        .team-box { flex: 1; background: var(--card-bg); padding: 14px 20px; border-radius: 16px; border: 2px solid rgba(255,255,255,0.1); text-align: center; }
+        .team-box.team-blue { border-color: rgba(0, 210, 255, 0.4); }
+        .team-box.team-red { border-color: rgba(255, 42, 109, 0.4); }
+        .team-box.active-turn { box-shadow: 0 0 30px currentColor; }
+
+        .team-members-container {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(255, 255, 255, 0.15);
+            font-size: 0.85rem;
+            text-align: right;
+        }
+        .leader-section {
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid var(--accent-gold);
+            padding: 6px 10px;
+            border-radius: 8px;
+            color: var(--accent-gold);
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .players-list-section {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .player-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 8px;
+            border-radius: 6px;
+            color: var(--text-main);
+        }
+
+        .game-status-bar {
+            width: 100%; background: var(--card-bg); border: 1px solid rgba(0, 240, 255, 0.25);
+            border-radius: 16px; padding: 14px 22px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 15px;
+        }
+
+        .timer-container { display: flex; flex-direction: column; align-items: center; background: rgba(4, 6, 12, 0.8); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 12px; padding: 6px 20px; min-width: 150px; }
+        .timer-display { font-size: 1.4rem; font-weight: 900; color: var(--accent-cyan); font-family: monospace; }
+        .timer-progress-bar { width: 100%; height: 5px; background: #151d2a; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+        .timer-progress-fill { height: 100%; background: var(--accent-cyan); width: 100%; transition: width 1s linear; }
+
+        .leader-control-panel {
+            width: 100%; background: linear-gradient(135deg, rgba(255, 204, 0, 0.08) 0%, rgba(20, 16, 5, 0.8) 100%);
+            border: 2px dashed var(--accent-gold); border-radius: 16px; padding: 16px 22px; margin-bottom: 18px; display: none; align-items: center; gap: 15px; flex-wrap: wrap;
+        }
+
+        .game-actions-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-action-end {
+            background: var(--accent-magenta); color: #fff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action-end:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        .btn-action-exit {
+            background: rgba(255, 255, 255, 0.1); color: #e2e8f0; border: 1px solid rgba(255, 255, 255, 0.25); padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.2s;
+        }
+        .btn-action-exit:hover { background: rgba(255, 0, 85, 0.2); border-color: var(--accent-magenta); color: #fff; transform: translateY(-2px); }
+
+        .grid-container { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; width: 100%; margin-bottom: 25px; }
+        .card {
+            background: var(--card-bg); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; height: 70px;
+            display: flex; align-items: center; justify-content: center; font-size: 0.95rem; font-weight: bold; cursor: pointer; text-align: center; padding: 6px;
+            transition: all 0.25s;
+        }
+        .card:hover { border-color: var(--accent-cyan); transform: translateY(-3px) scale(1.02); }
+
+        .card.revealed-blue { background: linear-gradient(135deg, #00d2ff, #0088cc) !important; color: #000 !important; font-weight: 900; }
+        .card.revealed-red { background: linear-gradient(135deg, #ff2a6d, #b8003f) !important; color: #fff !important; font-weight: 900; }
+        .card.revealed-neutral { background: var(--neutral-card) !important; color: #94a3b8 !important; }
+        .card.revealed-black { background: #000 !important; color: #ff0055 !important; border: 2px solid #ff0055 !important; font-weight: 900; }
+        .card.leader-view-black { background: #090204 !important; color: #ff0055 !important; border: 2px solid #ff0055 !important; }
+
+        .copyright-footer {
+            margin-top: auto; padding: 15px; text-align: center; font-size: 0.85rem; color: #64748b;
+            border-top: 1px solid rgba(0, 240, 255, 0.1); width: 100%; max-width: 1150px;
+        }
+        .copyright-footer strong { color: var(--accent-cyan); }
+
+        @media (max-width: 900px) { .grid-container { grid-template-columns: repeat(4, 1fr); } .card { height: 58px; font-size: 0.85rem; } }
+    </style>
+</head>
+<body>
+
+    <div class="scary-loss-overlay" id="scary-loss-overlay">
+        <div class="scary-skull">💀</div>
+        <div class="scary-title" id="scary-title-text">لقد خسر فريقك!</div>
+        <div class="scary-subtitle">تم كشف الكلمة السوداء القاتلة! 💣</div>
+        <button class="btn-close-scary" onclick="exitGame()">إغلاق وخروج 🚪</button>
+    </div>
+
+    <div class="overlay" id="login-overlay">
+        <div class="login-card">
+            <h2>شيفرة</h2>
+            <div style="color: #8a99ad; font-size: 0.85rem; margin-bottom: 20px;">أدخل اسمك، رمز الغرفة، وحدد فريقك ودورك</div>
+
+            <div class="room-row">
+                <input type="text" id="room-id-input" class="input-cyber" placeholder="رمز الغرفة (مثال: A3x9)" value="">
+                <button class="btn-create-room" onclick="generateNewRoom()">إنشاء غرفة 🎲</button>
+            </div>
+
+            <div class="room-created-box" id="room-created-box">
+                <div class="info-row">
+                    <span>تم إنشاء الغرفة بنجاح!</span>
+                    <span id="created-room-code-text" style="color: #fff;">-</span>
+                </div>
+                <div class="copy-wrapper">
+                    <button class="btn-copy-link" onclick="copyRoomLink()">📋 نسخ رابط الغرفة للأصدقاء</button>
+                    <span id="copy-toast" class="copy-toast">تم النسخ! ✨</span>
+                </div>
+            </div>
+
+            <input type="text" id="player-name-input" class="input-cyber" placeholder="اسمك الكريم..." autofocus>
+
+            <div class="team-select-group">
+                <button class="btn-team-cyber blue active" id="btn-select-blue" onclick="selectTeam('blue')">🔵 الفريق الأزرق</button>
+                <button class="btn-team-cyber red" id="btn-select-red" onclick="selectTeam('red')">🔴 الفريق الأحمر</button>
+            </div>
+
+            <div class="leader-checkbox-container">
+                <input type="checkbox" id="is-leader-check" style="transform: scale(1.2); cursor: pointer;">
+                <label for="is-leader-check" style="cursor: pointer;">👑 أنا قائد الفريق (Spymaster)</label>
+            </div>
+
+            <button class="btn-launch" onclick="enterGame()">الانضمام إلى الغرفة 🚀</button>
+            
+            <div>
+                <button class="btn-guide" onclick="openGuide()">📖 دليل اللعب وطريقة الشرح</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="guide-modal" id="guide-modal">
+        <div class="guide-content">
+            <h3>📖 دليل لعبة شيفرة</h3>
+            <p>لعبة شيفرة هي لعبة ذكاء وتخمين جماعية بين فريقين (الأزرق والأحمر).</p>
+            
+            <h4>🎯 الهدف من اللعبة:</h4>
+            <ul>
+                <li>كشف جميع الكلمات الخاصة بفريقك قبل الفريق المنافس.</li>
+            </ul>
+
+            <h4>👑 دور القائد (Spymaster):</h4>
+            <ul>
+                <li>يعرف أماكن وألوان الكلمات الخاصة بفريقه والكلمة السوداء القاتلة.</li>
+                <li>يقوم بإعطاء تلميح مكون من <strong>كلمة واحدة فقط + رقم</strong> (مثال: "بحر 2") ليشير إلى الكلمات التابعة لفريقه.</li>
+            </ul>
+
+            <h4>👥 دور أعضاء الفريق:</h4>
+            <ul>
+                <li>يحاولون تخمين الكلمات بناءً على تلميح القائد بالنقر على البطاقات.</li>
+                <li>إذا اختاروا بطاقة فريقهم، يستمر دورهم.</li>
+                <li>إذا اختاروا بطاقة محايدة أو بطاقة الفريق المنافس، ينتهي دورهم فوراً.</li>
+                <li><strong>تحذير 💀:</strong> إذا تم اختيار البطاقة السوداء، يخسر الفريق اللعبة فوراً!</li>
+            </ul>
+
+            <button class="btn-close-guide" onclick="closeGuide()">فهمت، إغلاق الدليل ✕</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+
+        <div class="scoreboard">
+            <div class="team-box team-blue" id="box-blue">
+                <div style="font-weight: bold; color: var(--team-blue);">الفريق الأزرق</div>
+                <div style="font-size: 1.8rem; font-weight: 900;" id="score-blue">0 / 16</div>
+                
+                <div class="team-members-container">
+                    <div class="leader-section">
+                        <span>👑 القائد:</span>
+                        <span id="blue-leader-name" style="color:#fff;">غير محدد</span>
+                    </div>
+                    <div style="margin-bottom: 4px; font-weight: bold; color: var(--team-blue);">الأعضاء:</div>
+                    <div class="players-list-section" id="blue-players-list"></div>
+                </div>
+            </div>
+
+            <div class="team-box team-red" id="box-red">
+                <div style="font-weight: bold; color: var(--team-red);">الفريق الأحمر</div>
+                <div style="font-size: 1.8rem; font-weight: 900;" id="score-red">0 / 15</div>
+
+                <div class="team-members-container">
+                    <div class="leader-section">
+                        <span>👑 القائد:</span>
+                        <span id="red-leader-name" style="color:#fff;">غير محدد</span>
+                    </div>
+                    <div style="margin-bottom: 4px; font-weight: bold; color: var(--team-red);">الأعضاء:</div>
+                    <div class="players-list-section" id="red-players-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-status-bar">
+            <div>
+                <span style="color: #8a99ad;">التلميح: </span>
+                <span id="clue-status-text" style="font-weight: 900; color: var(--accent-gold);">في انتظار التلميح...</span>
+            </div>
+
+            <div class="timer-container">
+                <span style="font-size: 0.75rem; color: #8a99ad;">⏰ وقت التفكير</span>
+                <div class="timer-display" id="timer-display">03:00</div>
+                <div class="timer-progress-bar"><div class="timer-progress-fill" id="timer-progress-fill"></div></div>
+            </div>
+
+            <div>
+                <span style="color: #8a99ad;">الدور: </span>
+                <strong id="turn-indicator" style="color: var(--team-blue);">🔵 الفريق الأزرق</strong>
+            </div>
+        </div>
+
+        <div class="leader-control-panel" id="leader-panel">
+            <span style="color: var(--accent-gold); font-weight: bold;">👑 لوحة القائد:</span>
+            <input type="text" id="leader-clue-word" class="input-cyber" style="width: 180px; margin: 0;" placeholder="كلمة التلميح...">
+            <select id="leader-clue-count" class="input-cyber" style="width: 100px; margin: 0;">
+                <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+            </select>
+            <button style="background: var(--accent-gold); border: none; padding: 10px 18px; font-weight: bold; border-radius: 8px; cursor: pointer;" onclick="submitClue()">إرسال 📢</button>
+        </div>
+
+        <div class="game-actions-bar">
+            <button id="btn-end-turn" class="btn-action-end" onclick="endTurn()">⏭️ إنهاء الدور</button>
             <button class="btn-action-exit" onclick="exitGame()">🚪 الخروج من اللعبة</button>
         </div>
 
@@ -445,7 +871,6 @@
         let currentGameState = null;
         let copyTimeout = null;
 
-        // دالة لتوليد صوت مرعب تلقائياً عبر المتصفح
         function playScarySound() {
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -650,7 +1075,6 @@
             });
         }
 
-        // الاستماع لحدث فتح البطاقة السوداء لعرض الشاشة المرعبة وتشغيل الصوت
         socket.on('blackCardLoss', ({ losingTeam }) => {
             playScarySound();
             const lossOverlay = document.getElementById('scary-loss-overlay');
