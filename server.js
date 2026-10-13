@@ -84,6 +84,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // إرسال التلميح وبدء العداد فوراً وبث الحالة لجميع أعضاء الغرفة
     socket.on('submitClue', ({ roomId, word, count }) => {
         const room = rooms[roomId];
         if (!room) return;
@@ -178,12 +179,14 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('updateGameState', { ...room, players: Object.values(room.players) });
     });
 
+    // إنهاء الدور والتنقل المباشر للفريق الآخر
     socket.on('endTurn', ({ roomId }) => {
         const room = rooms[roomId];
         if (!room) return;
 
         clearInterval(room.timerInterval);
         room.isTimerRunning = false;
+        room.timer = 180;
         room.currentTurn = room.currentTurn === 'blue' ? 'red' : 'blue';
         room.clue = "في انتظار التلميح من القائد...";
         room.cards.forEach(c => c.selectedBy = null);
